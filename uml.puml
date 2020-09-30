@@ -1,0 +1,11 @@
+@startuml
+Spider <|-- YoutubeSpider
+
+Spider : String root
+Spider : request_page()
+Spider : validate_page()
+Spider : process_page()
+
+
+@enduml
+
