@@ -2,50 +2,17 @@ import requests
 import pickle
 import random
 from bs4 import BeautifulSoup
-from dotenv import load_dotenv
+
 
 import helper
-
-load_dotenv()
-
-
-class Model:
-    def __init__(self, base_url, source_url, login_url, root_element, unwanted_elements, hooks):
-        self._model = {
-            'base_url': base_url,
-            'source_url': source_url,
-            'login_url': login_url,
-            'root_element': root_element,
-            'unwanted_elements': unwanted_elements,
-            'hooks': hooks
-        }
-
-    def __str__(self):
-        return f"""
-            'base_url': {self._model['base_url']}
-            'source_url': {self._model['source_url']}
-            'login_url' : {self._model['login_url']}
-            'root_element': {self._model['root_element']}
-            'unwanted_elements': {self._model['unwanted_elements']}
-            'hooks': {self._model['hooks']}
-        """
-
-
-class Session:
-    def __init__(self, model):
-        self._session = requests.session()
-        self.model = model._model
-        pass
-
-    def login(self):
-        pass
+from session import Session
+from model import Model
 
 
 
 class Spider:
     def __init__(self, model):
         self.model = model._model
-        self.filename = None
         self.session = Session(self.model)
 
     def login(self):
