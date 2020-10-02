@@ -1,6 +1,7 @@
 import requests
 import os
 import pickle
+import time
 from dotenv import load_dotenv
 from urllib.parse import urlparse
 load_dotenv()
@@ -50,13 +51,27 @@ class Session:
             print("you are not logged in")
             return False
 
-        result = self._session.get(url, headers=dict(referer=url))
-        uri = urlparse(result.url)
-        filename = uri.netloc + ".pickle"
-        with open(filename, 'wb+') as p_file:
-            pickle.dump(result, p_file)
+        valid_request = False
+        tries = 0
 
-        return filename
+        while not valid_request and tries < 3:
+            result = self._session.get(url, headers=dict(referer=url))
+            if result.status_code == 200:
+                valid_request = True
+            else:
+                tries += 1
+                print(f'Something went wrong with the status code {result.status_code} restarting the request with some delay.')
+                time.sleep(2)
+
+        if valid_request:
+            uri = urlparse(result.url)
+            filename = uri.netloc + ".pickle"
+            with open(filename, 'wb+') as p_file:
+                pickle.dump(result, p_file)
+
+            return filename
+        else:
+            return False
 
     def build_url(self, route):
         return self._baseurl + route

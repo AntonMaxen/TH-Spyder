@@ -1,6 +1,7 @@
 @startuml
 Spider <|-- YoutubeSpider
 Spider --* Session
+Spider --* Parser
 
 Spider : String root
 Spider : request_page()
