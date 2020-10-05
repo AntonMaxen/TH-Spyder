@@ -9,7 +9,6 @@ load_dotenv()
 USERNAME = os.getenv('PP_USERNAME')
 PASSWORD = os.getenv('PP_PASSWORD')
 
-LOGIN_URL = "https://yh.pingpong.se/login/processlogin?disco=local"
 SOURCE_URL = "https://yh.pingpong.se/courseId/11264/content.do?id=4744630"
 True_URL = "https://yh.pingpong.se/pp/courses/course11264/published/1601480920383/resourceId/4879393/content/5e4540d8-7a81-4bb2-afc7-c4de59000348/5e4540d8-7a81-4bb2-afc7-c4de59000348.html"
 BASE_URL = "https://yh.pingpong.se"
@@ -17,25 +16,20 @@ PPF_DATA = "/pp/courses/course11264/published/1601480920383/resourceId/4879393/c
 
 
 class Session:
-    def __init__(self):
+    def __init__(self, require_login=False):
         self._session = requests.session()
-        self._requirelogin = True
+        self._requirelogin = require_login
         self._isloggedin = False
         self._baseurl = BASE_URL
-        #self.model = model._model
 
-    def login(self):
-        # Function that gets name of payloadnames
-        p_load_un_name = "login"
-        p_load_pa_name = "password"
-        payload = {
-            p_load_un_name: USERNAME,
-            p_load_pa_name: PASSWORD
-        }
-        login_result = self._session.post(LOGIN_URL, data=payload, headers=dict(referer=LOGIN_URL))
+    def login(self, login_url, payload, cookie_name=None):
+        login_result = self._session.post(login_url, data=payload, headers=dict(referer=login_url))
 
-        if login_result.status_code == 200:
-            if login_result.url != LOGIN_URL:
+        # Some better error handling to check if user login is success or not TODO
+        if login_result.ok and cookie_name is not None:
+            # checking for cookie name if it exists the user is probably logged in
+            good_cookie = len([cookie for cookie in self._session.cookies if cookie.name == cookie_name]) > 0
+            if good_cookie:
                 self._isloggedin = True
                 return self._isloggedin
             else:
@@ -45,12 +39,13 @@ class Session:
             print(f'Something went wrong, statuscode {login_result.status_code}')
             return False
 
-    def request_page(self, url):
+    def request_page(self, url, prefix=""):
         # checking if logged in if required.
         if self._requirelogin and not self._isloggedin:
             print("you are not logged in")
             return False
 
+        #Validate the request TODO make function for that
         valid_request = False
         tries = 0
 
@@ -63,12 +58,12 @@ class Session:
                 print(f'Something went wrong with the status code {result.status_code} restarting the request with some delay.')
                 time.sleep(2)
 
+        # if valid then save page
         if valid_request:
             uri = urlparse(result.url)
-            filename = uri.netloc + ".pickle"
+            filename = prefix + uri.netloc + ".pickle"
             with open(filename, 'wb+') as p_file:
                 pickle.dump(result, p_file)
-
             return filename
         else:
             return False
@@ -79,8 +74,15 @@ class Session:
 
 def main():
     my_session = Session()
-    result = my_session.login()
-    filename = my_session.request_page(SOURCE_URL)
+    # Function that gets name of payloadnames
+    un_name = "login"
+    pa_name = "password"
+    payload = {
+        un_name: USERNAME,
+        pa_name: PASSWORD
+    }
+    result = my_session.login(LOGIN_URL, payload)
+    filename = my_session.request_page(True_URL)
     print(filename)
     pass
 
