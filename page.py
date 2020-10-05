@@ -23,8 +23,9 @@ class Page:
     def __init__(self):
         self.page = None
 
-    def load(self, filename):
-        with open(filename, "rb") as p_file:
+    def load(self, fullpath):
+
+        with open(fullpath, "rb") as p_file:
             unpickled_page = pickle.load(p_file)
             self.page = BeautifulSoup(unpickled_page.text, 'html.parser')
 

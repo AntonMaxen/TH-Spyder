@@ -2,6 +2,7 @@ import requests
 import os
 import pickle
 import time
+from pathlib import Path
 from dotenv import load_dotenv
 from urllib.parse import urlparse
 load_dotenv()
@@ -61,10 +62,15 @@ class Session:
         # if valid then save page
         if valid_request:
             uri = urlparse(result.url)
+            print(uri)
             filename = prefix + uri.netloc + ".pickle"
-            with open(filename, 'wb+') as p_file:
+            path = f'pages/{uri.netloc}/'
+            fullpath = f'{path}{filename}'
+
+            Path(path).mkdir(parents=True, exist_ok=True)
+            with open(fullpath, 'wb+') as p_file:
                 pickle.dump(result, p_file)
-            return filename
+            return fullpath
         else:
             return False
 
