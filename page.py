@@ -20,11 +20,12 @@ from bs4 import BeautifulSoup
 
 # probably renaming class to page instead of parser, example page.trim, page.extract
 class Page:
-    def __init__(self):
+    def __init__(self, file=None):
         self.page = None
+        if file is not None:
+            self.load(file)
 
     def load(self, fullpath):
-
         with open(fullpath, "rb") as p_file:
             unpickled_page = pickle.load(p_file)
             self.page = BeautifulSoup(unpickled_page.text, 'html.parser')
@@ -73,6 +74,13 @@ class Page:
 
     def extract(self):
         pass
+
+    # simple functions
+    def get_links(self):
+        return self.attributes([["a"]], "href")
+
+    def get_text(self):
+        return self.text([["body"]])
 
 
 def add_prefix(str_list, prefix):

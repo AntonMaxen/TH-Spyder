@@ -1,6 +1,7 @@
 from dotenv import load_dotenv
 import os
 import re
+import random
 
 from session import Session
 from page import Page
@@ -24,38 +25,50 @@ def create_payload():
     return payload
 
 
-def main():
-    mySession = Session(True)
+def print_list(my_list):
+    print("\n".join(my_list))
+
+
+def pingpong_test():
+    # Start session and build login payload
+    session = Session(True)
     payload = create_payload()
     cookie_name = "PPLoggedIn"
-    mySession.login(LOGIN_URL, payload, cookie_name)
-    print(f'is logged in {mySession._isloggedin}')
-    filename = mySession.request_page(BASE_URL)
+    session.login(LOGIN_URL, payload, cookie_name)
+    print(f'is logged in {session._isloggedin}')
 
-    myPage = Page()
-    myPage.load(filename)
-    links = myPage.attributes([["a"]], "href")
+    # parse the page to look for all course ids
+    base_page_path = session.request_page(BASE_URL)
+    base_page = Page(base_page_path)
+    links = base_page.get_links()
     idlinks = [link for link in links if re.search("\/launchCourse.do\?id=\d", link)]
     ids = [re.sub("([^\d])", "", link) for link in idlinks]
-    print("\n".join(ids))
 
-    testfile = mySession.request_page(BASE_URL + "/launchCourse.do?id=12051")
-    newPage = Page()
-    newPage.load(testfile)
-    attr_list = newPage.attributes([["iframe"]], "src")
-    contentlink = attr_list[0]
+    # use ids to start a new request
+    ids = list(set(ids))
+    for id in ids:
+        course_page_path = session.request_page(BASE_URL + f'/launchCourse.do?id={id}')
+        course_page = Page(course_page_path)
+        attr_list = course_page.attributes([["iframe"]], "src")
+        contentlink = attr_list[0]
 
-    next_page = mySession.request_page(BASE_URL + contentlink)
-    newPage.load(next_page)
-    print("\n".join(newPage.text([["body"]])))
+        # use content link to get final page
+        content_page_path = session.request_page(BASE_URL + contentlink)
+        content_page = Page(content_page_path)
+        print_list(content_page.get_text())
+        print("")
 
+
+def wiki_test():
     new_session = Session(False)
-    wiki_path = new_session.request_page("https://en.wikipedia.org/wiki/Special:Random")
-    wiki_page = Page()
-    wiki_page.load(wiki_path)
-    wiki_attr = wiki_page.attributes([["a"]], "href")
-    #print("\n".join([attr for attr in wiki_attr if "cass" in attr]))
-    print("\n".join(wiki_attr))
+    path = new_session.request_page("https://en.wikipedia.org/wiki/Special:Random")
+    page = Page()
+    page.load(path)
+    print_list(page.get_links())
+
+
+def main():
+    pingpong_test()
 
 
 if __name__ == '__main__':
