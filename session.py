@@ -14,6 +14,7 @@ SOURCE_URL = "https://yh.pingpong.se/courseId/11264/content.do?id=4744630"
 True_URL = "https://yh.pingpong.se/pp/courses/course11264/published/1601480920383/resourceId/4879393/content/5e4540d8-7a81-4bb2-afc7-c4de59000348/5e4540d8-7a81-4bb2-afc7-c4de59000348.html"
 BASE_URL = "https://yh.pingpong.se"
 PPF_DATA = "/pp/courses/course11264/published/1601480920383/resourceId/4879393/content/5e4540d8-7a81-4bb2-afc7-c4de59000348/5e4540d8-7a81-4bb2-afc7-c4de59000348.html"
+LOGIN_URL = "https://yh.pingpong.se/login/processlogin?disco=local"
 
 
 class Session:
@@ -21,6 +22,7 @@ class Session:
         self._session = requests.session()
         self._requirelogin = require_login
         self._isloggedin = False
+        # not used yet
         self._baseurl = BASE_URL
 
     def login(self, login_url, payload, cookie_name=None):
@@ -62,10 +64,9 @@ class Session:
         # if valid then save page
         if valid_request:
             uri = urlparse(result.url)
-            print(uri)
-            filename = prefix + uri.netloc + ".pickle"
-            path = f'pages/{uri.netloc}/'
-            fullpath = f'{path}{filename}'
+            filename = os.path.basename(uri.path) + ".pickle"
+            path = f'pages/{uri.netloc}{os.path.dirname(uri.path)}'
+            fullpath = f'{path}/{filename}'
 
             Path(path).mkdir(parents=True, exist_ok=True)
             with open(fullpath, 'wb+') as p_file:
