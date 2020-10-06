@@ -30,57 +30,75 @@ class Page:
             unpickled_page = pickle.load(p_file)
             self.page = BeautifulSoup(unpickled_page.text, 'html.parser')
 
+    def get_outer_element(self, identifier=None):
+        if identifier is None:
+            root = self.page
+        else:
+            root = self.page.find(*identifier)
+
+        return root if root is not None else self.page
+        #return self.page if identifier is None else self.page.find(*identifier)
+
     def trim(self, identifiers):
         if self.page is None:
             return False
 
         if len(identifiers) != 0:
             for identifier in identifiers:
-                print(f'identifier {identifier}')
                 for element in self.page.find_all(*identifier):
-                    print(f'element {type(element)}')
                     element.decompose()
 
-    def outer_element(self, identifier):
-        root = self.page.find(*identifier)
-        # error handling if root is not found TODO
-        return root
+    def extract(self):
+        pass
 
-    def text(self, identifiers):
+    def text(self, identifiers, outer_element=None):
         if len(identifiers) == 0:
             return False
+
+        container = self.get_outer_element(outer_element)
 
         text_elements = []
 
         for identifier in identifiers:
-            for element in self.page.find_all(*identifier):
+            for element in container.find_all(*identifier):
                 if element.text:
                     text_elements.append(element.text)
 
         return text_elements
 
-    def attributes(self, identifiers, attrname):
+    def attributes(self, identifiers, attrname, outer_element=None):
         if len(identifiers) == 0:
             return False
 
-        attribute_list = []
+        container = self.get_outer_element(outer_element)
 
+        attribute_list = []
         for identifier in identifiers:
-            for element in self.page.find_all(*identifier):
+            for element in container.find_all(*identifier):
                 if element.has_attr(attrname):
                     attribute_list.append(element[attrname])
 
         return attribute_list
 
-    def extract(self):
-        pass
+    def element(self, identifier, outer_element=None):
+        container = self.get_outer_element(outer_element)
+        return container.find(*identifier)
+
+    def elements(self, identifier, outer_element=None):
+        container = self.get_outer_element(outer_element)
+        return container.find_all(*identifier)
+
+    def text_elements(self, outer_element=None):
+        container = self.get_outer_element(outer_element)
+        return container.find_all(text=True)
 
     # simple functions
-    def get_links(self):
-        return self.attributes([["a"]], "href")
+    def get_links(self, outer_element=None):
+        return self.attributes([["a"]], "href", outer_element)
 
-    def get_text(self):
-        return self.text([["body"]])
+    def get_text(self, outer_element=None):
+        return self.text([["body"]], outer_element)
+    # helper functions
 
 
 def add_prefix(str_list, prefix):

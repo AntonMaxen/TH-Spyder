@@ -42,7 +42,7 @@ class Session:
             print(f'Something went wrong, statuscode {login_result.status_code}')
             return False
 
-    def request_page(self, url, prefix=""):
+    def request_page(self, url):
         # checking if logged in if required.
         if self._requirelogin and not self._isloggedin:
             print("you are not logged in")
