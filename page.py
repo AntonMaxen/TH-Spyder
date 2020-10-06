@@ -36,6 +36,7 @@ class Page:
         else:
             root = self.page.find(*identifier)
 
+        # This can cause unexpected behaviour, need better error management. #TODO
         return root if root is not None else self.page
         #return self.page if identifier is None else self.page.find(*identifier)
 
