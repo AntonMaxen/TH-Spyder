@@ -13,14 +13,20 @@ load_dotenv()
 
 USERNAME = os.getenv('PP_USERNAME')
 PASSWORD = os.getenv('PP_PASSWORD')
+FA_USERNAME = os.getenv('FA_USERNAME')
+FA_PASSWORD = os.getenv('FA_PASSWORD')
 
 
-def create_payload():
-    un_name = "login"
-    pa_name = "password"
+form_variations = {
+    'login_names': ['email', 'username', 'user', 'login'],
+    'password_names': ['pass', 'password']
+}
+
+
+def create_payload(un_name, pa_name, username, password):
     payload = {
-        un_name: USERNAME,
-        pa_name: PASSWORD
+        un_name: username,
+        pa_name: password
     }
     return payload
 
@@ -68,7 +74,7 @@ def vizualize_page_links(page_obj):
 def pingpong_test():
     # Start session and build login payload
     session = Session(True)
-    payload = create_payload()
+    payload = create_payload("login", "password", USERNAME, PASSWORD)
     cookie_name = "PPLoggedIn"
     session.login(LOGIN_URL, payload, cookie_name)
     print(f'is logged in {session._isloggedin}')
@@ -101,11 +107,13 @@ def pingpong_test():
 
             ppf_page_path = session.request_page(BASE_URL + ppf_link)
             ppf_page = Page(ppf_page_path)
-            vizualize_page_links(ppf_page)
+            text = visualize_page_text(ppf_page)
+            print_list(text)
 
             print("*" * 30)
 
         print("-" * 20)
+
 
 def wiki_test():
     new_session = Session(False)
@@ -116,9 +124,18 @@ def wiki_test():
         print_list(page.get_links())
 
 
+def login_fields(form_url):
+    session = Session(False)
+    path = session.request_page(form_url)
+    page = Page(path)
+    page.login_fields()
+
+
 def main():
-    pingpong_test()
-    #wiki_test()
+    form_url = "https://www.facebook.com"
+    # pingpong_test()
+    # wiki_test()
+    login_fields(form_url)
 
 
 if __name__ == '__main__':

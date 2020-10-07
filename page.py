@@ -38,7 +38,7 @@ class Page:
 
         # This can cause unexpected behaviour, need better error management. #TODO
         return root if root is not None else self.page
-        #return self.page if identifier is None else self.page.find(*identifier)
+        # return self.page if identifier is None else self.page.find(*identifier)
 
     def trim(self, identifiers):
         if self.page is None:
@@ -64,6 +64,10 @@ class Page:
             for element in container.find_all(*identifier):
                 if element.text:
                     text_elements.append(element.text)
+
+        text_elements = [el.text for identifier in identifiers
+                         for el in container.find_all(*identifier)
+                         if element.text]
 
         return text_elements
 
@@ -99,7 +103,19 @@ class Page:
 
     def get_text(self, outer_element=None):
         return self.text([["body"]], outer_element)
-    # helper functions
+
+    # experimental functions
+    def login_fields(self):
+        form_element = self.page.element([["form"]])
+        if form_element:
+            attr_list = page.attributes([["input", {'type': 'text'}], ["input", {'type': 'email'}]], "name", "form")
+            un_name = [attr for attr in attr_list if attr in form_variations['login_names']]
+            pa_name = [attr for attr in attr_list if attr in form_variations['password_names']]
+            return {
+                'action': form_element['action'],
+                'un_name': un_name,
+                'pa_name': pa_name
+            }
 
 
 def add_prefix(str_list, prefix):
@@ -115,7 +131,7 @@ def reformat_youtube_embed(links):
 def main():
     myPage = Page()
     myPage.load("yh.pingpong.se.pickle")
-    #print(myPage.page)
+    # print(myPage.page)
     unwanted_elements = [
         ["head"],
         ["div", {"id": "header"}],
@@ -134,12 +150,12 @@ def main():
     for f in reformatted_links:
         print(f)
 
-    #for f in found_text:
-        #print(f)
+    # for f in found_text:
+        # print(f)
 
-    #myPage.trim(unwanted_elements)
+    # myPage.trim(unwanted_elements)
     print("-" * 20)
-    #print(myPage.page.prettify())
+    # print(myPage.page.prettify())
 
 
 def test():
@@ -150,4 +166,4 @@ def test():
 
 if __name__ == '__main__':
     main()
-    #test()
+    # test()

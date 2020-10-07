@@ -31,7 +31,11 @@ class Session:
         # Some better error handling to check if user login is success or not TODO
         if login_result.ok and cookie_name is not None:
             # checking for cookie name if it exists the user is probably logged in
-            good_cookie = len([cookie for cookie in self._session.cookies if cookie.name == cookie_name]) > 0
+            if cookie_name is not None:
+                good_cookie = len([cookie for cookie in self._session.cookies if cookie.name == cookie_name]) > 0
+            else:
+                good_cookie = True
+
             if good_cookie:
                 self._isloggedin = True
                 return self._isloggedin
