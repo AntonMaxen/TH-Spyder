@@ -106,11 +106,22 @@ class Page:
 
     # experimental functions
     def login_fields(self):
-        form_element = self.page.element([["form"]])
+        form_variations = {
+            'login_names': ['email', 'username', 'user', 'login'],
+            'password_names': ['pass', 'password']
+        }
+
+        form_element = self.element([["form"]])
         if form_element:
-            attr_list = page.attributes([["input", {'type': 'text'}], ["input", {'type': 'email'}]], "name", "form")
+            attr_list = self.attributes([["input", {'type': 'text'}],
+                                         ["input", {'type': 'email'}],
+                                         ["input", {'type': 'password'}]], "name", "form")
+
             un_name = [attr for attr in attr_list if attr in form_variations['login_names']]
             pa_name = [attr for attr in attr_list if attr in form_variations['password_names']]
+            un_name = un_name[0] if len(un_name) > 0 else None
+            pa_name = pa_name[0] if len(pa_name) > 0 else None
+
             return {
                 'action': form_element['action'],
                 'un_name': un_name,

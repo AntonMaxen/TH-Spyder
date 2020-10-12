@@ -17,12 +17,6 @@ FA_USERNAME = os.getenv('FA_USERNAME')
 FA_PASSWORD = os.getenv('FA_PASSWORD')
 
 
-form_variations = {
-    'login_names': ['email', 'username', 'user', 'login'],
-    'password_names': ['pass', 'password']
-}
-
-
 def create_payload(un_name, pa_name, username, password):
     payload = {
         un_name: username,
@@ -128,7 +122,12 @@ def login_fields(form_url):
     session = Session(False)
     path = session.request_page(form_url)
     page = Page(path)
-    page.login_fields()
+    fields = page.login_fields()
+    action = fields['action']
+    un_name = fields['un_name']
+    pa_name = fields['pa_name']
+    payload = create_payload(un_name, pa_name, FA_USERNAME, FA_PASSWORD)
+    session.login(BASE_URL + action, payload)
 
 
 def main():
