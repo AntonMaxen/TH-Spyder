@@ -1,0 +1,28 @@
+    def login(self):
+        # set payload
+        # create session
+        # build header
+        # post request with login url
+        # validate login success
+        # return session
+        return object
+
+    def request_page(self):
+        # build header
+        # get url w or w/o session
+        # pickle the page
+        return "filedestination"
+
+    def validate_page(self):
+        # unpickle page
+        # read status code
+        # if !ok queue another request
+        # else queue for processing/parsing
+        pass
+
+    def process_page(self):
+        # get unpickled page
+        # get root(container) element with bs4
+        # trim junk from container
+        # Process remaining and extract wanted information
+        pass

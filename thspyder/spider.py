@@ -1,13 +1,7 @@
-import requests
-import pickle
-import random
-from bs4 import BeautifulSoup
-
-
-import helper
-from session import Session
+# local imports
+from thspyder.session import Session
+from thspyder.page import Page
 from model import Model
-
 
 
 class Spider:

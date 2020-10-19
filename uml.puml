@@ -3,12 +3,10 @@ Spider <|-- YoutubeSpider
 Spider *-- Session
 Spider *-- Page
 
-
 Spider : String root
 Spider : request_page()
 Spider : validate_page()
 Spider : process_page()
-
 
 @enduml
 

@@ -19,7 +19,10 @@ class Model:
             'hooks': {self._model['hooks']}
         """
 
+
 def main():
+    my_model = Model(1, 2, 3, 4, 5, 6)
+    print(my_model)
     pass
 
 

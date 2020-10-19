@@ -1,6 +1,6 @@
 import pickle
-import re
 from bs4 import BeautifulSoup
+from bs4 import Comment
 
 """
     Identifier model:
@@ -18,7 +18,6 @@ from bs4 import BeautifulSoup
 """
 
 
-# probably renaming class to page instead of parser, example page.trim, page.extract
 class Page:
     def __init__(self, file=None):
         self.page = None
@@ -48,6 +47,11 @@ class Page:
             for identifier in identifiers:
                 for element in self.page.find_all(*identifier):
                     element.decompose()
+
+    def remove_comments(self):
+        comments = self.page.find_all(text=lambda text: isinstance(text, Comment))
+        for comment in comments:
+            comment.extract()
 
     def extract(self):
         pass
@@ -114,67 +118,37 @@ class Page:
         form_element = self.element([["form"]])
         if form_element:
             attr_list = self.attributes([["input", {'type': 'text'}],
-                                         ["input", {'type': 'email'}],
-                                         ["input", {'type': 'password'}]], "name", "form")
+                                         ["input", {'type': 'email'}]], "name", "form")
+
+            all_attrs = self.attributes([["input"]], "name", "form")
+            all_attrs_value = self.attributes([["input"]], "value", "form")
+            data_dict = dict(zip(all_attrs, all_attrs_value))
 
             un_name = [attr for attr in attr_list if attr in form_variations['login_names']]
-            pa_name = [attr for attr in attr_list if attr in form_variations['password_names']]
+            pa_name = self.attributes([["input", {'type': 'password'}]], "name", "form")
             un_name = un_name[0] if len(un_name) > 0 else None
             pa_name = pa_name[0] if len(pa_name) > 0 else None
 
+            # quickfix for enctypes that takes url params as form actions.
+            if 'enctype' in form_element:
+                if form_element['enctype'] != "application/x-www-form-urlencoded":
+                    action = form_element['action']
+                else:
+                    action = ''
+            else:
+                action = form_element['action']
+
             return {
-                'action': form_element['action'],
+                'action': action,
                 'un_name': un_name,
-                'pa_name': pa_name
+                'pa_name': pa_name,
+                'data': data_dict
             }
 
 
-def add_prefix(str_list, prefix):
-    return [prefix + s for s in str_list]
-
-
-def reformat_youtube_embed(links):
-    new_links = [link.replace('https://www.youtube.com/embed', 'https://youtu.be') for link in links]
-    reformatted_links = [re.sub('(\\?ecver=\\d)', '', link) for link in new_links]
-    return reformatted_links
-
-
 def main():
-    myPage = Page()
-    myPage.load("yh.pingpong.se.pickle")
-    # print(myPage.page)
-    unwanted_elements = [
-        ["head"],
-        ["div", {"id": "header"}],
-        ["script"],
-        ["header"],
-        ["h3"]
-    ]
-
-    wanted_elements = [
-        [True]
-    ]
-
-    attr_list = myPage.attributes(wanted_elements, 'src')
-    fixed_links = add_prefix(attr_list, 'https:')
-    reformatted_links = reformat_youtube_embed(fixed_links)
-    for f in reformatted_links:
-        print(f)
-
-    # for f in found_text:
-        # print(f)
-
-    # myPage.trim(unwanted_elements)
-    print("-" * 20)
-    # print(myPage.page.prettify())
-
-
-def test():
-    myJunk = BeautifulSoup('<div class="canvas-body">Hello i like me some sugar</div>', 'html.parser')
-    result = myJunk.find_all('div "class": "canvas-body"')
-    myList = ["div", {"class": "canvas-body"}]
+    pass
 
 
 if __name__ == '__main__':
     main()
-    # test()

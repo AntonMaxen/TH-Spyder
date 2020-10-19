@@ -1,0 +1,2 @@
+1. Give the URL you want to scrape
+2. Behind authentication wall? then give Form url

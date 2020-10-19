@@ -1,12 +1,15 @@
 import requests
 import os
 import pickle
-import time
 from pathlib import Path
 from dotenv import load_dotenv
 from urllib.parse import urlparse
-load_dotenv()
+import time
 
+# project imports
+from thspyder.helpers.helper import random_ua
+
+load_dotenv()
 USERNAME = os.getenv('PP_USERNAME')
 PASSWORD = os.getenv('PP_PASSWORD')
 
@@ -20,16 +23,26 @@ LOGIN_URL = "https://yh.pingpong.se/login/processlogin?disco=local"
 class Session:
     def __init__(self, require_login=False):
         self._session = requests.session()
+        self.set_headers()
         self._requirelogin = require_login
         self._isloggedin = False
         # not used yet
         self._baseurl = BASE_URL
 
+    def set_headers(self, *args, **kwargs):
+        if 'ua' in kwargs:
+            ua = kwargs.get('ua')
+            print("inside")
+        else:
+            ua = random_ua()
+        self._session.headers.update({'user-agent': ua})
+
     def login(self, login_url, payload, cookie_name=None):
         login_result = self._session.post(login_url, data=payload, headers=dict(referer=login_url))
 
         # Some better error handling to check if user login is success or not TODO
-        if login_result.ok and cookie_name is not None:
+        if login_result.ok:
+            print("ok")
             # checking for cookie name if it exists the user is probably logged in
             if cookie_name is not None:
                 good_cookie = len([cookie for cookie in self._session.cookies if cookie.name == cookie_name]) > 0
@@ -84,17 +97,6 @@ class Session:
 
 
 def main():
-    my_session = Session()
-    # Function that gets name of payloadnames
-    un_name = "login"
-    pa_name = "password"
-    payload = {
-        un_name: USERNAME,
-        pa_name: PASSWORD
-    }
-    result = my_session.login(LOGIN_URL, payload)
-    filename = my_session.request_page(True_URL)
-    print(filename)
     pass
 
 

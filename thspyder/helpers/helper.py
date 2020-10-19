@@ -1,4 +1,5 @@
 import random
+import re
 
 
 def random_ua():
@@ -8,6 +9,16 @@ def random_ua():
         "Mozilla/5.0 (Linux; Android 6.0.1; RedMi Note 5 Build/RB3N5C; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/68.0.3440.91 Mobile Safari/537.36"
     ]
     return random.choice(ua_strings)
+
+
+def add_prefix(str_list, prefix):
+    return [prefix + s for s in str_list]
+
+
+def reformat_youtube_embed(links):
+    new_links = [link.replace('https://www.youtube.com/embed', 'https://youtu.be') for link in links]
+    reformatted_links = [re.sub('(\\?ecver=\\d)', '', link) for link in new_links]
+    return reformatted_links
 
 
 def main():
