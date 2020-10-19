@@ -130,7 +130,7 @@ class Page:
             pa_name = pa_name[0] if len(pa_name) > 0 else None
 
             # quickfix for enctypes that takes url params as form actions.
-            if 'enctype' in form_element:
+            if form_element.has_attr('enctype'):
                 if form_element['enctype'] != "application/x-www-form-urlencoded":
                     action = form_element['action']
                 else:
