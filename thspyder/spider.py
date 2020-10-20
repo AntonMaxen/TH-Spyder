@@ -18,22 +18,17 @@ WANTED_ATTRIBUTES = [
     {
         "file_name": "youtube_links",
         "elements": [["iframe"]],
-        "attribute": "src"
+        "attributes": ['src']
     },
     {
         "file_name": "image_links",
         "elements": [["img"]],
-        "attribute": "src"
+        "attributes": ['src']
     },
     {
         "file_name": "links",
         "elements": [[True]],
-        "attribute": "src"
-    },
-    {
-        "file_name": "links",
-        "elements": [[True]],
-        "attribute": "href"
+        "attributes": ['src', 'href']
     }
 ]
 
@@ -72,6 +67,15 @@ model_wiki = {
 
 }
 
+model_rs = {
+    "name": "runescape",
+    "scrape_url": "https://secure.runescape.com/m=hiscore_oldschool/hiscorepersonal?user1=uvlaiki",
+    "wanted_attributes": WANTED_ATTRIBUTES,
+    "wanted_text": WANTED_TEXT,
+    "unwanted_elements": UNWANTED_ELEMENTS,
+    "root": ['td', {'valign': 'top', 'width': '380'}]
+}
+
 
 class Spider:
     def __init__(self, model):
@@ -89,6 +93,11 @@ class Spider:
         self.wanted_attributes = model['wanted_attributes']
         self.wanted_text = model['wanted_text']
         self.unwanted_elements = model['unwanted_elements']
+        if 'root' in model:
+            self.root = model['root']
+        else:
+            self.root = None
+
         self.session = None
 
     def run(self):
@@ -108,14 +117,14 @@ class Spider:
 
         # extracts wanted attributes
         for attribute in self.wanted_attributes:
-            found_attributes = content_page.attributes(attribute['elements'], attribute['attribute'])
-            self.save_result("attribute", attribute['file_name'], found_attributes)
+            found_attributes = content_page.attributes(attribute['elements'], attribute['attributes'], self.root)
+            self.save_result("attributes", attribute['file_name'], found_attributes)
 
         # extracts wanted text
         for element in self.wanted_text:
             # found_text = content_page.text(element['elements'])
             # found_text = content_page.get_text()
-            found_text = content_page.text_elements()
+            found_text = content_page.text_elements(self.root)
             found_text = remove_junk(found_text)
             self.save_result("text", element['file_name'], found_text)
 
@@ -129,7 +138,7 @@ class Spider:
         for result in result_list:
             updated = update_file(result, f'{self.spider_name}/{category}', f'{file_name}.txt')
             if updated:
-                print("the page is updated with" + str(result))
+                print("the page is updated with: " + str(result))
 
 
 if __name__ == '__main__':
@@ -138,4 +147,7 @@ if __name__ == '__main__':
 
     wiki_spider = Spider(model_wiki)
     wiki_spider.run()
+
+    rs_spider = Spider(model_rs)
+    rs_spider.run()
     pass

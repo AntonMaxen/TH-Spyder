@@ -48,7 +48,7 @@ def pingpong_test():
             content_page_path = session.request_page(BASE_URL + f'/courseId/{id}/content.do?id={course_id}')
             content_page = Page(content_page_path)
             active_text = content_page.text([["a", {"class": "active"}]])
-            attr_list = content_page.attributes([["iframe"]], "src")
+            attr_list = content_page.attributes([["iframe"]], ["src"])
             ppf_link = attr_list[0]
 
             ppf_page_path = session.request_page(BASE_URL + ppf_link)

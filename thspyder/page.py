@@ -71,7 +71,7 @@ class Page:
 
         return text_elements
 
-    def attributes(self, identifiers, attrname, outer_element=None):
+    def attributes(self, identifiers, attrnames, outer_element=None):
         if len(identifiers) == 0:
             return False
 
@@ -80,8 +80,9 @@ class Page:
         attribute_list = []
         for identifier in identifiers:
             for element in container.find_all(*identifier):
-                if element.has_attr(attrname):
-                    attribute_list.append(element[attrname])
+                for attrname in attrnames:
+                    if element.has_attr(attrname):
+                        attribute_list.append(element[attrname])
 
         return attribute_list
 
@@ -99,7 +100,7 @@ class Page:
 
     # simple functions
     def get_links(self, outer_element=None):
-        return self.attributes([["a"]], "href", outer_element)
+        return self.attributes([["a"]], ["href"], outer_element)
 
     def get_text(self, outer_element=None):
         return self.text([["body"]], outer_element)
@@ -114,14 +115,14 @@ class Page:
         form_element = self.element([["form"]])
         if form_element:
             attr_list = self.attributes([["input", {'type': 'text'}],
-                                         ["input", {'type': 'email'}]], "name", "form")
+                                         ["input", {'type': 'email'}]], ["name"], "form")
 
-            all_attrs = self.attributes([["input"]], "name", "form")
-            all_attrs_value = self.attributes([["input"]], "value", "form")
+            all_attrs = self.attributes([["input"]], ["name"], "form")
+            all_attrs_value = self.attributes([["input"]], ["value"], "form")
             data_dict = dict(zip(all_attrs, all_attrs_value))
 
             un_name = [attr for attr in attr_list if attr in form_variations['login_names']]
-            pa_name = self.attributes([["input", {'type': 'password'}]], "name", "form")
+            pa_name = self.attributes([["input", {'type': 'password'}]], ["name"], "form")
             un_name = un_name[0] if len(un_name) > 0 else None
             pa_name = pa_name[0] if len(pa_name) > 0 else None
 

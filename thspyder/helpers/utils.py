@@ -34,7 +34,7 @@ def visualize_page_text(page_obj):
 
 def vizualize_page_links(page_obj):
     # print all links in page obj
-    print_list(page_obj.attributes([["a"]], "href", outer_element="body"))
+    print_list(page_obj.attributes([["a"]], ["href"], outer_element="body"))
 
 
 def main():
