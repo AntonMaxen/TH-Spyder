@@ -69,10 +69,6 @@ class Page:
                 if element.text:
                     text_elements.append(element.text)
 
-        text_elements = [el.text for identifier in identifiers
-                         for el in container.find_all(*identifier)
-                         if element.text]
-
         return text_elements
 
     def attributes(self, identifiers, attrname, outer_element=None):

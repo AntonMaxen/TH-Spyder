@@ -1,11 +1,11 @@
 from dotenv import load_dotenv
 import os
-from urllib.parse import urlparse
 
 # project imports
-from thspyder.helpers.listf import remove_junk, print_list, filter_list, trim_list, remove_duplicates, extract_list
+from thspyder.helpers.listf import print_list, filter_list, trim_list, remove_duplicates, extract_list
 from thspyder.session import Session
 from thspyder.page import Page
+from thspyder.helpers.utils import create_payload, visualize_page_text
 
 LOGIN_URL = "https://yh.pingpong.se/login/processlogin?disco=local"
 BASE_URL = "https://yh.pingpong.se"
@@ -18,45 +18,13 @@ FA_USERNAME = os.getenv('FA_USERNAME')
 FA_PASSWORD = os.getenv('FA_PASSWORD')
 
 
-def create_payload(form_url, username, password):
-    # get login page and extract form hooks
-    session = Session(False)
-    login_page_path = session.request_page(form_url)
-    login_page = Page(login_page_path)
-    fields = login_page.login_fields()
-
-    # edit data object with authentication
-    payload = fields['data'].copy()
-    payload[fields['un_name']] = username
-    payload[fields['pa_name']] = password
-
-    # handle post url
-    base_url = 'https://' + urlparse(form_url).netloc
-    action = fields['action']
-    post_url = base_url + action if action else form_url
-    return post_url, payload
-
-
-def visualize_page_text(page_obj):
-    # filter and print list of text from a page object
-    page_obj.trim([["script"]])
-    page_text_elements = page_obj.text_elements()
-    page_text = remove_junk(page_text_elements)
-    print_list(page_text)
-
-
-def vizualize_page_links(page_obj):
-    # print all links in page obj
-    print_list(page_obj.attributes([["a"]], "href", outer_element="body"))
-
-
 def pingpong_test():
     # Start session and build login payload
     session = Session(True)
     post_url, payload = create_payload(LOGIN_URL, USERNAME, PASSWORD)
     cookie_name = "PPLoggedIn"
     session.login(post_url, payload, cookie_name)
-    print(f'is logged in {session._isloggedin}')
+    print(f'is logged in {session.isloggedin}')
 
     # parse the page to look for all course ids
     base_page_path = session.request_page(BASE_URL)

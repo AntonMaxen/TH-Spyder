@@ -25,14 +25,13 @@ class Session:
         self._session = requests.session()
         self.set_headers()
         self._requirelogin = require_login
-        self._isloggedin = False
+        self.isloggedin = False
         # not used yet
         self._baseurl = BASE_URL
 
     def set_headers(self, *args, **kwargs):
         if 'ua' in kwargs:
             ua = kwargs.get('ua')
-            print("inside")
         else:
             ua = random_ua()
         self._session.headers.update({'user-agent': ua})
@@ -42,8 +41,7 @@ class Session:
 
         # Some better error handling to check if user login is success or not TODO
         if login_result.ok:
-            print("ok")
-            print(self._session.cookies.keys())
+            print(f'Cookies: {self._session.cookies.keys()}')
             # checking for cookie name if it exists the user is probably logged in
             if cookie_name is not None:
                 good_cookie = len([cookie for cookie in self._session.cookies if cookie.name == cookie_name]) > 0
@@ -51,18 +49,18 @@ class Session:
                 good_cookie = True
 
             if good_cookie:
-                self._isloggedin = True
-                return self._isloggedin
+                self.isloggedin = True
+                return self.isloggedin
             else:
-                self._isloggedin = False
-                return self._isloggedin
+                self.isloggedin = False
+                return self.isloggedin
         else:
             print(f'Something went wrong, statuscode {login_result.status_code}')
             return False
 
     def request_page(self, url):
         # checking if logged in if required.
-        if self._requirelogin and not self._isloggedin:
+        if self._requirelogin and not self.isloggedin:
             print("you are not logged in")
             return False
 
@@ -98,6 +96,10 @@ class Session:
 
 
 def main():
+    session = Session()
+    page_path = session.request_page("https://www.youtube.com")
+    print(page_path)
+
     pass
 
 
