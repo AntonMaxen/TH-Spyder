@@ -1,5 +1,5 @@
 import pickle
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, UnicodeDammit
 from bs4 import Comment
 
 """
@@ -19,8 +19,8 @@ from bs4 import Comment
 
 
 class Page:
-    def __init__(self, file=None):
-        self.page = None
+    def __init__(self, file=None, page=None):
+        self.page = page
         if file is not None:
             self.load(file)
 
@@ -56,7 +56,7 @@ class Page:
     def extract(self):
         pass
 
-    def text(self, identifiers, outer_element=None):
+    def text(self, identifiers, outer_element=None, sep="", strip=False):
         if len(identifiers) == 0:
             return False
 
@@ -67,7 +67,7 @@ class Page:
         for identifier in identifiers:
             for element in container.find_all(*identifier):
                 if element.text:
-                    text_elements.append(element.text)
+                    text_elements.append(element.get_text(separator=sep, strip=strip))
 
         return text_elements
 
@@ -86,6 +86,7 @@ class Page:
 
         return attribute_list
 
+    # development methods
     def element(self, identifier, outer_element=None):
         container = self.get_outer_element(outer_element)
         return container.find(*identifier)
@@ -103,7 +104,8 @@ class Page:
         return self.attributes([["a"]], ["href"], outer_element)
 
     def get_text(self, outer_element=None):
-        return self.text([["body"]], outer_element)
+        container = self.get_outer_element(outer_element)
+        return container.stripped_strings
 
     # experimental functions
     def login_fields(self):

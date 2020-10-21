@@ -1,4 +1,5 @@
 import re
+from unidecode import unidecode
 
 
 def print_list(my_list):
@@ -9,8 +10,8 @@ def filter_list(my_list, pattern):
     return [item for item in my_list if re.search(pattern, item)]
 
 
-def trim_list(my_list, pattern):
-    return [re.sub(pattern, "", item) for item in my_list]
+def trim_list(my_list, pattern, separator=""):
+    return [re.sub(pattern, separator, item) for item in my_list]
 
 
 def extract_list(my_list, pattern):
@@ -19,6 +20,14 @@ def extract_list(my_list, pattern):
 
 def clean_list(my_list):
     return [item for item in my_list if item]
+
+
+def strip_list(my_list):
+    return [item.strip() for item in my_list]
+
+
+def unidecode_list(my_list):
+    return [unidecode(item) for item in my_list]
 
 
 def remove_duplicates(my_list):

@@ -1,80 +1,12 @@
 import os
-from dotenv import load_dotenv
 
 # local imports
 from thspyder.session import Session
 from thspyder.page import Page
 from thspyder.helpers.utils import create_payload
 from thspyder.helpers.writefile import update_file
-from thspyder.helpers.listf import remove_junk
-load_dotenv()
-
-USERNAME = os.getenv('PP_USERNAME')
-PASSWORD = os.getenv('PP_PASSWORD')
-LOGIN_URL = "https://yh.pingpong.se/login/processlogin?disco=local"
-SCRAPE_URL = "https://yh.pingpong.se/pp/courses/course11264/published/1603131345825/resourceId/4980914/content/5e4540d8-7a81-4bb2-afc7-c4de59000348/5e4540d8-7a81-4bb2-afc7-c4de59000348.html"
-AUTH_COOKIE = "PPLoggedIn"
-WANTED_ATTRIBUTES = [
-    {
-        "file_name": "youtube_links",
-        "elements": [["iframe"]],
-        "attributes": ['src']
-    },
-    {
-        "file_name": "image_links",
-        "elements": [["img"]],
-        "attributes": ['src']
-    },
-    {
-        "file_name": "links",
-        "elements": [[True]],
-        "attributes": ['src', 'href']
-    }
-]
-
-WANTED_TEXT = [
-    {
-        "file_name": "site_text",
-        "elements": [["p"], ["h3"]]
-    }
-]
-
-UNWANTED_ELEMENTS = [
-    ["script"],
-    ["head"]
-]
-
-modelpp = {
-    "name": "pingpong",
-    "login": {
-        "form_url": LOGIN_URL,
-        "auth_cookie": AUTH_COOKIE,
-        "username": USERNAME,
-        "password": PASSWORD
-    },
-    "scrape_url": SCRAPE_URL,
-    "wanted_attributes": WANTED_ATTRIBUTES,
-    "wanted_text": WANTED_TEXT,
-    "unwanted_elements": []
-}
-
-model_wiki = {
-    "name": "wikipedia",
-    "scrape_url": "https://en.wikipedia.org/wiki/George_Black_(New_Zealand_politician)",
-    "wanted_attributes": WANTED_ATTRIBUTES,
-    "wanted_text": WANTED_TEXT,
-    "unwanted_elements": UNWANTED_ELEMENTS
-
-}
-
-model_rs = {
-    "name": "runescape",
-    "scrape_url": "https://secure.runescape.com/m=hiscore_oldschool/hiscorepersonal?user1=uvlaiki",
-    "wanted_attributes": WANTED_ATTRIBUTES,
-    "wanted_text": WANTED_TEXT,
-    "unwanted_elements": UNWANTED_ELEMENTS,
-    "root": ['td', {'valign': 'top', 'width': '380'}]
-}
+from thspyder.helpers.listf import remove_junk, print_list, trim_list, strip_list, unidecode_list
+from thspyder.models import model_rs, modelpp, model_wiki
 
 
 class Spider:
@@ -93,16 +25,10 @@ class Spider:
         self.wanted_attributes = model['wanted_attributes']
         self.wanted_text = model['wanted_text']
         self.unwanted_elements = model['unwanted_elements']
-        if 'root' in model:
-            self.root = model['root']
-        else:
-            self.root = None
-
         self.session = None
 
     def run(self):
         # does one iteration of scraping
-
         self.session = Session(self.login_required)
         # login if required
         if self.login_required:
@@ -117,15 +43,16 @@ class Spider:
 
         # extracts wanted attributes
         for attribute in self.wanted_attributes:
-            found_attributes = content_page.attributes(attribute['elements'], attribute['attributes'], self.root)
-            self.save_result("attributes", attribute['file_name'], found_attributes)
+            attributes = content_page.attributes(attribute['elements'], attribute['attributes'], attribute['root'])
+            self.save_result("attributes", attribute['file_name'], attributes)
 
         # extracts wanted text
         for element in self.wanted_text:
-            # found_text = content_page.text(element['elements'])
-            # found_text = content_page.get_text()
-            found_text = content_page.text_elements(self.root)
-            found_text = remove_junk(found_text)
+            found_text = content_page.text(element['elements'], element['root'], strip=True, sep="|")
+            #found_text = trim_list(found_text, '(\\n)+', " ")
+            #found_text = strip_list(found_text)
+            print(found_text)
+
             self.save_result("text", element['file_name'], found_text)
 
     def login(self):
@@ -138,7 +65,8 @@ class Spider:
         for result in result_list:
             updated = update_file(result, f'{self.spider_name}/{category}', f'{file_name}.txt')
             if updated:
-                print("the page is updated with: " + str(result))
+                #print("the page is updated with: " + str(result))
+                pass
 
 
 if __name__ == '__main__':
