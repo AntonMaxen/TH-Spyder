@@ -88,11 +88,11 @@ class Page:
         return self.elements(identifiers, extract, outer_element)
 
     # development methods
-    def b_element(self, identifier, outer_element=None):
+    def find_element(self, identifier, outer_element=None):
         container = self.get_outer_element(outer_element)
         return container.find(*identifier)
 
-    def b_elements(self, identifier, outer_element=None):
+    def find_elements(self, identifier, outer_element=None):
         container = self.get_outer_element(outer_element)
         return container.find_all(*identifier)
 
@@ -112,7 +112,7 @@ class Page:
     def login_fields(self):
         login_variations = ['email', 'username', 'user', 'login']
 
-        form_element = self.b_element([["form"]])
+        form_element = self.find_element([["form"]])
         if form_element:
             attr_list = self.attributes([["input", {'type': 'text'}],
                                          ["input", {'type': 'email'}]], ["name"], "form")
