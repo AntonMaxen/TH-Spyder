@@ -13,13 +13,23 @@ def create_payload(form_url, username, password):
     fields = login_page.login_fields()
 
     # edit data object with authentication
-    payload = fields['data'].copy()
-    payload[fields['un_name']] = username
-    payload[fields['pa_name']] = password
+    payload = fields['input_names'].copy()
+    payload[fields['login_name']] = username
+    payload[fields['password_name']] = password
 
     # handle post url
     base_url = 'https://' + urlparse(form_url).netloc
-    action = fields['action']
+    form_attrs = fields['form_attrs']
+
+    # handle special case
+    if 'enctype' in form_attrs:
+        if form_attrs['enctype'] != "application/x-www-form-urlencoded":
+            action = form_attrs['action']
+        else:
+            action = ''
+    else:
+        action = form_attrs['action']
+
     post_url = base_url + action if action else form_url
     return post_url, payload
 

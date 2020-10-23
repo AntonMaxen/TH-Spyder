@@ -1,5 +1,11 @@
 import random
 import re
+from pathlib import Path
+
+
+def get_project_root():
+    # Based of how deep this file is in the file structure, if moving files change this functions
+    return Path(__file__).parent.parent.parent
 
 
 def random_ua():

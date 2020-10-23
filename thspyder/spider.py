@@ -1,4 +1,5 @@
 import os
+import shutil
 
 # local imports
 from thspyder.session import Session
@@ -6,8 +7,8 @@ from thspyder.page import Page
 from thspyder.helpers.utils import create_payload
 from thspyder.helpers.writefile import update_file
 from thspyder.helpers.listf import remove_junk, print_list, trim_list, strip_list, unidecode_list
-from thspyder.models import model_rs, modelpp, model_wiki
-
+from thspyder.models import model_rs, model_wiki, default_model
+from thspyder.model_pp import modelpp
 
 class Spider:
     def __init__(self, model):
@@ -15,7 +16,7 @@ class Spider:
         if 'login' in model:
             self.login_required = True
             self.form_url = model['login']['form_url']
-            self.auth_cookie = model['login']['auth_cookie']
+            self.auth_func = model['login']['auth_func']
             self.username = model['login']['username']
             self.password = model['login']['password']
         else:
@@ -47,29 +48,37 @@ class Spider:
             self.save_result("attributes", attribute['file_name'], attributes)
 
         # extracts wanted text
-        for element in self.wanted_text:
-            found_text = content_page.text(element['elements'], element['root'], strip=True, sep="|")
-            #found_text = trim_list(found_text, '(\\n)+', " ")
-            #found_text = strip_list(found_text)
-            print(found_text)
+        for el in self.wanted_text:
+            found_text = content_page.text(el['elements'], el['root'], strip=el['strip'], sep=el['separator'])
 
-            self.save_result("text", element['file_name'], found_text)
+            self.save_result("text", el['file_name'], found_text)
 
     def login(self):
         post_url, payload = create_payload(self.form_url, self.username, self.password)
-        self.session.login(post_url, payload, self.auth_cookie)
+        self.session.login(post_url, payload, self.auth_func)
         if not self.session.isloggedin:
             raise Exception("login failed")
 
     def save_result(self, category, file_name, result_list):
+        path = (self.spider_name, category)
         for result in result_list:
-            updated = update_file(result, f'{self.spider_name}/{category}', f'{file_name}.txt')
+            updated = update_file(result, path, f'{file_name}.txt')
             if updated:
-                #print("the page is updated with: " + str(result))
-                pass
+                print(f"the page: {'/'.join(path)}/{file_name} is updated with: {str(len(result))} lines")
+            else:
+                print("|-|"*30)
 
 
-if __name__ == '__main__':
+def remove_data():
+    if os.path.exists("data"):
+        shutil.rmtree("data")
+
+
+def main():
+    remove_data()
+    default_spider = Spider(default_model)
+    default_spider.run()
+
     spyder = Spider(modelpp)
     spyder.run()
 
@@ -78,4 +87,7 @@ if __name__ == '__main__':
 
     rs_spider = Spider(model_rs)
     rs_spider.run()
-    pass
+
+
+if __name__ == '__main__':
+    main()

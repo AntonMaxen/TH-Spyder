@@ -2,6 +2,7 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 
+
 USERNAME = os.getenv('PP_USERNAME')
 PASSWORD = os.getenv('PP_PASSWORD')
 LOGIN_URL = "https://yh.pingpong.se/login/processlogin?disco=local"
@@ -60,50 +61,52 @@ UNWANTED_ELEMENTS = [
     ["head"]
 ]
 
-model_wiki = {
-    "name": "wikipedia",
-    "scrape_url": "https://en.wikipedia.org/wiki/George_Black_(New_Zealand_politician)",
+
+def auth_function(session):
+    print(f'inside auth function: {session}')
+    return len([cookie for cookie in session.cookies if cookie.name == AUTH_COOKIE]) > 0
+
+
+modelpp = {
+    "name": "pingpong",
+    "login": {
+        "form_url": LOGIN_URL,
+        "auth_func": auth_function,
+        "username": USERNAME,
+        "password": PASSWORD
+    },
+    "scrape_url": SCRAPE_URL,
     "wanted_attributes": WANTED_ATTRIBUTES,
     "wanted_text": WANTED_TEXT,
-    "unwanted_elements": UNWANTED_ELEMENTS
-
-}
-
-
-model_wiki_random = {
-    "name": "wikipedia",
-    "scrape_url": "https://en.wikipedia.org/wiki/Special:Random",
-    "wanted_attributes": WANTED_ATTRIBUTES,
-    "wanted_text": WANTED_TEXT,
-    "unwanted_elements": UNWANTED_ELEMENTS
-
-}
-
-model_rs = {
-    "name": "runescape",
-    "scrape_url": "https://secure.runescape.com/m=hiscore_oldschool/hiscorepersonal?user1=uvlaiki",
-    "wanted_attributes": WANTED_ATTRIBUTES,
-    "wanted_text": WANTED_TEXT,
-    "unwanted_elements": UNWANTED_ELEMENTS,
-}
-
-
-default_model = {
-    "name": "example",
-    "scrape_url": "https://example.com/",
-    "wanted_attributes": [],
-    "wanted_text": [
-        {
-            "file_name": "site_text",
-            "elements": [["body"]],
-            "root": None,
-            "strip": False,
-            "separator": ""
-        }
-    ],
     "unwanted_elements": []
 }
 
+
+class Model:
+    def __init__(self, name="", login=None, scrape_url="",
+                 wanted_attributes=None, wanted_text=None,
+                 unwanted_elements=None):
+
+        self.name = name or "default"
+        self.login = login
+        self.scrape_url = login or "https://example.com"
+        self.wanted_attributes = build_attributes(wanted_attributes)
+        self.wanted_text = []
+        self.unwanted_elements = []
+        pass
+
+
+def build_attributes(wanted_attr):
+    if wanted_attr is None or len(wanted_attr) == 0:
+        return []
+    """
+    
+    for attr_dict in wanted_attr:
+        if
+    """
+
+def fill_if_not_exist(my_dict):
+    pass
 
 def main():
     pass

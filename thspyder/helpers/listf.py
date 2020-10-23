@@ -38,6 +38,10 @@ def remove_junk(my_list):
     return clean_list(trim_list(my_list, "\n|\\xa0"))
 
 
+def replace_grps_nl(my_list):
+    return strip_list(trim_list(my_list, '(\\n)+', " "))
+
+
 def main():
     pass
 

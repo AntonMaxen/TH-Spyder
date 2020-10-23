@@ -23,7 +23,7 @@ def pingpong_test():
     session = Session(True)
     post_url, payload = create_payload(LOGIN_URL, USERNAME, PASSWORD)
     cookie_name = "PPLoggedIn"
-    session.login(post_url, payload, cookie_name)
+    session.login(post_url, payload, auth_func=lambda s: len([c for c in s.cookies if c.name == cookie_name]) > 0)
     print(f'is logged in {session.isloggedin}')
 
     # parse the page to look for all course ids
@@ -53,7 +53,7 @@ def pingpong_test():
 
             ppf_page_path = session.request_page(BASE_URL + ppf_link)
             ppf_page = Page(ppf_page_path)
-            visualize_page_text(ppf_page)
+            print_list(ppf_page.get_text())
 
             print("*" * 30)
 
@@ -67,7 +67,7 @@ def wiki_test(n):
         path = new_session.request_page("https://en.wikipedia.org/wiki/Special:Random")
         page = Page()
         page.load(path)
-        print_list(page.get_links())
+        print_list(page.get_links(["body"]))
 
 
 def facebook_test():
@@ -83,11 +83,20 @@ def facebook_test():
     front_page.trim([["script"]])
     visualize_page_text(front_page)
 
+def test_bs4():
+    session = Session()
+    page_path = session.request_page("https://en.wikipedia.org/wiki/Special:Random")
+    page = Page(file=page_path)
+    stripped_string = page.text(["body"], sep="|", strip=True)
+    attributes = page.attributes([[True]], "src")
+    print(attributes)
+
 
 def main():
     pingpong_test()
     #wiki_test(5)
     #facebook_test()
+    #test_bs4()
 
 
 if __name__ == '__main__':

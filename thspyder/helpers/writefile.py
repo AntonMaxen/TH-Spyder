@@ -1,17 +1,15 @@
 import os
 from pathlib import Path
+from thspyder.helpers.helper import get_project_root
 
 
 def get_file_content(fullpath):
-    if os.path.isfile(f'./{fullpath}'):
-        src_file = open(f'{fullpath}', 'r', encoding='utf8')
+    if os.path.isfile(fullpath):
+        src_file = open(fullpath, 'r', encoding='utf8')
         content = src_file.read().splitlines()
         src_file.close()
     else:
-        print("hello")
-        src_file = open(f'{fullpath}', 'x', encoding='utf8')
-        print(src_file)
-        print(f'Created file: {src_file}')
+        src_file = open(fullpath, 'x', encoding='utf8')
         content = []
         src_file.close()
 
@@ -20,15 +18,20 @@ def get_file_content(fullpath):
 
 def update_file(source, rel_path, filename):
     new_source = False
+    root = get_project_root()
+    parent_dir = os.path.normpath(root)
 
-    path = f'data/{rel_path}'
-    fullpath = f'{path}/{filename}'
+    path = os.path.join(parent_dir, "storage", "data", *rel_path)
+    fullpath = os.path.join(path, filename)
+
     Path(path).mkdir(parents=True, exist_ok=True)
     content = get_file_content(fullpath)
 
+    print(fullpath)
+
     if source not in content:
         new_source = True
-        src_file = open(f'{fullpath}', 'a', encoding='utf8')
+        src_file = open(fullpath, 'a', encoding='utf8')
         src_file.write(source)
         src_file.write('\n')
         src_file.close()

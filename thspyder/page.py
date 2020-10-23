@@ -1,5 +1,5 @@
 import pickle
-from bs4 import BeautifulSoup, UnicodeDammit
+from bs4 import BeautifulSoup
 from bs4 import Comment
 
 """
@@ -30,68 +30,69 @@ class Page:
             self.page = BeautifulSoup(unpickled_page.text, 'html.parser')
 
     def get_outer_element(self, identifier=None):
-        if identifier is None:
-            root = self.page
-        else:
-            root = self.page.find(*identifier)
+        if self.page is None:
+            raise Exception("missing classmember Page.page")
 
-        # This can cause unexpected behaviour, need better error management. #TODO
+        if identifier is None:
+            return self.page
+
+        identifier = [identifier] if isinstance(identifier, str) else identifier
+        root = self.page.find(*identifier)
+
         return root if root is not None else self.page
-        # return self.page if identifier is None else self.page.find(*identifier)
 
     def trim(self, identifiers):
         if self.page is None:
-            return False
+            raise Exception("missing classmember Page.page")
 
-        if len(identifiers) != 0:
-            for identifier in identifiers:
-                for element in self.page.find_all(*identifier):
-                    element.decompose()
+        for identifier in identifiers:
+            for element in self.page.find_all(*identifier):
+                element.decompose()
 
     def remove_comments(self):
+        if self.page is None:
+            raise Exception("missing classmember Page.page")
+
         comments = self.page.find_all(text=lambda text: isinstance(text, Comment))
         for comment in comments:
             comment.extract()
 
-    def extract(self):
-        pass
+    def elements(self, identifiers, func, outer_element=None):
+        container = self.get_outer_element(outer_element)
+
+        items = []
+        for identifier in identifiers:
+            if isinstance(identifier, str):
+                identifier = [identifier]
+
+            for element in container.find_all(*identifier):
+                item = func(element)
+                if item:
+                    items.append(item)
+
+        return items
 
     def text(self, identifiers, outer_element=None, sep="", strip=False):
-        if len(identifiers) == 0:
-            return False
+        def extract(element):
+            if element.text:
+                return element.get_text(separator=sep, strip=strip)
 
-        container = self.get_outer_element(outer_element)
-
-        text_elements = []
-
-        for identifier in identifiers:
-            for element in container.find_all(*identifier):
-                if element.text:
-                    text_elements.append(element.get_text(separator=sep, strip=strip))
-
-        return text_elements
+        return self.elements(identifiers, extract, outer_element)
 
     def attributes(self, identifiers, attrnames, outer_element=None):
-        if len(identifiers) == 0:
-            return False
+        def extract(element):
+            for attrname in attrnames:
+                if element.has_attr(attrname):
+                    return element[attrname]
 
-        container = self.get_outer_element(outer_element)
-
-        attribute_list = []
-        for identifier in identifiers:
-            for element in container.find_all(*identifier):
-                for attrname in attrnames:
-                    if element.has_attr(attrname):
-                        attribute_list.append(element[attrname])
-
-        return attribute_list
+        return self.elements(identifiers, extract, outer_element)
 
     # development methods
-    def element(self, identifier, outer_element=None):
+    def b_element(self, identifier, outer_element=None):
         container = self.get_outer_element(outer_element)
         return container.find(*identifier)
 
-    def elements(self, identifier, outer_element=None):
+    def b_elements(self, identifier, outer_element=None):
         container = self.get_outer_element(outer_element)
         return container.find_all(*identifier)
 
@@ -109,39 +110,27 @@ class Page:
 
     # experimental functions
     def login_fields(self):
-        form_variations = {
-            'login_names': ['email', 'username', 'user', 'login'],
-            'password_names': ['pass', 'password']
-        }
+        login_variations = ['email', 'username', 'user', 'login']
 
-        form_element = self.element([["form"]])
+        form_element = self.b_element([["form"]])
         if form_element:
             attr_list = self.attributes([["input", {'type': 'text'}],
                                          ["input", {'type': 'email'}]], ["name"], "form")
 
-            all_attrs = self.attributes([["input"]], ["name"], "form")
-            all_attrs_value = self.attributes([["input"]], ["value"], "form")
-            data_dict = dict(zip(all_attrs, all_attrs_value))
+            input_names = self.attributes([["input"]], ["name"], "form")
+            input_values = self.attributes([["input"]], ["value"], "form")
+            input_dict = dict(zip(input_names, input_values))
 
-            un_name = [attr for attr in attr_list if attr in form_variations['login_names']]
-            pa_name = self.attributes([["input", {'type': 'password'}]], ["name"], "form")
-            un_name = un_name[0] if len(un_name) > 0 else None
-            pa_name = pa_name[0] if len(pa_name) > 0 else None
-
-            # quickfix for enctypes that takes url params as form actions.
-            if form_element.has_attr('enctype'):
-                if form_element['enctype'] != "application/x-www-form-urlencoded":
-                    action = form_element['action']
-                else:
-                    action = ''
-            else:
-                action = form_element['action']
+            login_name = [attr for attr in attr_list if attr in login_variations]
+            password_name = self.attributes([["input", {'type': 'password'}]], ["name"], "form")
+            login_name = login_name[0] if len(login_name) > 0 else None
+            password_name = password_name[0] if len(password_name) > 0 else None
 
             return {
-                'action': action,
-                'un_name': un_name,
-                'pa_name': pa_name,
-                'data': data_dict
+                'form_attrs': form_element.attrs,
+                'login_name': login_name,
+                'password_name': password_name,
+                'input_names': input_dict
             }
 
 

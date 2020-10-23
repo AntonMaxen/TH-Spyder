@@ -1,98 +1,85 @@
 import requests
 import os
+import re
 import pickle
 from pathlib import Path
-from dotenv import load_dotenv
 from urllib.parse import urlparse
-import time
 
 # project imports
-from thspyder.helpers.helper import random_ua
-
-load_dotenv()
-USERNAME = os.getenv('PP_USERNAME')
-PASSWORD = os.getenv('PP_PASSWORD')
-
-SOURCE_URL = "https://yh.pingpong.se/courseId/11264/content.do?id=4744630"
-True_URL = "https://yh.pingpong.se/pp/courses/course11264/published/1601480920383/resourceId/4879393/content/5e4540d8-7a81-4bb2-afc7-c4de59000348/5e4540d8-7a81-4bb2-afc7-c4de59000348.html"
-BASE_URL = "https://yh.pingpong.se"
-PPF_DATA = "/pp/courses/course11264/published/1601480920383/resourceId/4879393/content/5e4540d8-7a81-4bb2-afc7-c4de59000348/5e4540d8-7a81-4bb2-afc7-c4de59000348.html"
-LOGIN_URL = "https://yh.pingpong.se/login/processlogin?disco=local"
+from thspyder.helpers.helper import random_ua, get_project_root
 
 
 class Session:
     def __init__(self, require_login=False):
-        self._session = requests.session()
+        self.session = requests.session()
         self.set_headers()
         self._requirelogin = require_login
         self.isloggedin = False
-        # not used yet
-        self._baseurl = BASE_URL
 
     def set_headers(self, *args, **kwargs):
         if 'ua' in kwargs:
             ua = kwargs.get('ua')
         else:
             ua = random_ua()
-        self._session.headers.update({'user-agent': ua})
+        self.session.headers.update({'user-agent': ua})
 
-    def login(self, login_url, payload, cookie_name=None):
-        login_result = self._session.post(login_url, data=payload, headers=dict(referer=login_url))
+    def login(self, login_url, payload, auth_func=None):
+        login_result = self.session.post(login_url, data=payload, headers=dict(referer=login_url))
 
         # Some better error handling to check if user login is success or not TODO
         if login_result.ok:
-            print(f'Cookies: {self._session.cookies.keys()}')
             # checking for cookie name if it exists the user is probably logged in
-            if cookie_name is not None:
-                good_cookie = len([cookie for cookie in self._session.cookies if cookie.name == cookie_name]) > 0
-            else:
-                good_cookie = True
+            if auth_func is not None:
+                print(f"Using auth function: {auth_func}")
+                if auth_func(self.session):
+                    self.isloggedin = True
+                else:
+                    self.isloggedin = False
 
-            if good_cookie:
-                self.isloggedin = True
-                return self.isloggedin
             else:
-                self.isloggedin = False
-                return self.isloggedin
+                print("WARN: no auth function given, gonna hope the request succeeded")
+                self.isloggedin = True
         else:
-            print(f'Something went wrong, statuscode {login_result.status_code}')
-            return False
+            raise Exception(f'Something went wrong, statuscode {login_result.status_code}')
+
+        return self.isloggedin
 
     def request_page(self, url):
         # checking if logged in if required.
         if self._requirelogin and not self.isloggedin:
-            print("you are not logged in")
-            return False
+            raise Exception(f'Login required for that request')
 
-        #Validate the request TODO make function for that
-        valid_request = False
-        tries = 0
-
-        while not valid_request and tries < 3:
-            result = self._session.get(url, headers=dict(referer=url))
-            if result.status_code == 200:
-                valid_request = True
-            else:
-                tries += 1
-                print(f'Something went wrong with the status code {result.status_code} restarting the request with some delay.')
-                time.sleep(2)
-
-        # if valid then save page
-        if valid_request:
-            uri = urlparse(result.url)
-            filename = os.path.basename(uri.path) + ".pickle"
-            path = f'pages/{uri.netloc}{os.path.dirname(uri.path)}'
-            fullpath = f'{path}/{filename}'
-
-            Path(path).mkdir(parents=True, exist_ok=True)
-            with open(fullpath, 'wb+') as p_file:
-                pickle.dump(result, p_file)
-            return fullpath
+        result = self.session.get(url, headers=dict(referer=url))
+        if result.status_code == 200:
+            return pickle_result(result, "pages")
         else:
-            return False
+            raise Exception(f'Request error code: {result.status_code}')
 
-    def build_url(self, route):
-        return self._baseurl + route
+
+def pickle_result(result, folder=""):
+    path, fullpath = build_paths(result.url, folder, "pickle")
+
+    Path(path).mkdir(parents=True, exist_ok=True)
+    with open(fullpath, 'wb+') as p_file:
+        pickle.dump(result, p_file)
+
+    return fullpath
+
+
+def build_paths(url, folder, file_suffix):
+    uri = urlparse(url)
+    filename = f'{os.path.basename(uri.path)}.{file_suffix}'
+    root = get_project_root()
+    parent_dir = os.path.normpath(root)
+
+    urlpath = os.path.dirname(uri.path)
+    clean_urlpath = [p for p in re.split('(/+)', urlpath) if p and not re.match('(/+)', p)]
+
+    path = os.path.join(parent_dir, "storage", folder, uri.netloc, *clean_urlpath)
+    fullpath = os.path.join(path, filename)
+    print(fullpath)
+
+    return path, fullpath
 
 
 def main():
