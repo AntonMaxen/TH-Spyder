@@ -7,6 +7,7 @@ from urllib.parse import urlparse
 
 # project imports
 from thspyder.helpers.helper import random_ua, get_project_root
+import thspyder.helpers.myconstants as constants
 
 
 class Session:
@@ -51,13 +52,13 @@ class Session:
 
         result = self.session.get(url, headers=dict(referer=url))
         if result.status_code == 200:
-            return pickle_result(result, "pages")
+            return pickle_result(result)
         else:
             raise Exception(f'Request error code: {result.status_code}')
 
 
-def pickle_result(result, folder=""):
-    path, fullpath = build_paths(result.url, folder, "pickle")
+def pickle_result(result):
+    path, fullpath = build_paths(result.url, "pickle")
 
     Path(path).mkdir(parents=True, exist_ok=True)
     with open(fullpath, 'wb+') as p_file:
@@ -66,7 +67,7 @@ def pickle_result(result, folder=""):
     return fullpath
 
 
-def build_paths(url, folder, file_suffix):
+def build_paths(url, file_suffix):
     uri = urlparse(url)
     filename = f'{os.path.basename(uri.path)}.{file_suffix}'
     root = get_project_root()
@@ -75,7 +76,7 @@ def build_paths(url, folder, file_suffix):
     urlpath = os.path.dirname(uri.path)
     clean_urlpath = [p for p in re.split('(/+)', urlpath) if p and not re.match('(/+)', p)]
 
-    path = os.path.join(parent_dir, "storage", folder, uri.netloc, *clean_urlpath)
+    path = os.path.join(parent_dir, constants.STORAGE_FOLDER, constants.PAGE_FOLDER, uri.netloc, *clean_urlpath)
     fullpath = os.path.join(path, filename)
     print(fullpath)
 

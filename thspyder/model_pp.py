@@ -12,19 +12,19 @@ AUTH_COOKIE = "PPLoggedIn"
 
 WANTED_ATTRIBUTES = [
     {
-        "file_name": "youtube_links",
+        "file_name": "youtube_links.txt",
         "elements": [["iframe"]],
         "attributes": ['src'],
         "root": None
     },
     {
-        "file_name": "image_links",
+        "file_name": "image_links.txt",
         "elements": [["img"]],
         "attributes": ['src'],
         "root": None
     },
     {
-        "file_name": "links",
+        "file_name": "links.txt",
         "elements": [[True]],
         "attributes": ['src', 'href'],
         "root": None
@@ -33,14 +33,14 @@ WANTED_ATTRIBUTES = [
 
 WANTED_TEXT = [
     {
-        "file_name": "site_text",
+        "file_name": "site_text.txt",
         "elements": [["p"], ["h3"]],
         "root": None,
         "strip": False,
         "separator": ""
     },
     {
-        "file_name": "all-text",
+        "file_name": "all-text.txt",
         "elements": [["body"]],
         "root": None,
         "strip": True,
@@ -48,7 +48,7 @@ WANTED_TEXT = [
 
     },
     {
-        "file_name": "table_text",
+        "file_name": "table_text.txt",
         "elements": [['tr']],
         "root": ["div", {"id": "contentHiscores"}],
         "strip": True,

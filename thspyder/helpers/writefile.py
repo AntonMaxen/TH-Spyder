@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 from thspyder.helpers.helper import get_project_root
+import thspyder.helpers.myconstants as constants
 
 
 def get_file_content(fullpath):
@@ -21,13 +22,11 @@ def update_file(source, rel_path, filename):
     root = get_project_root()
     parent_dir = os.path.normpath(root)
 
-    path = os.path.join(parent_dir, "storage", "data", *rel_path)
+    path = os.path.join(parent_dir, constants.STORAGE_FOLDER, constants.DATA_FOLDER, *rel_path)
     fullpath = os.path.join(path, filename)
 
     Path(path).mkdir(parents=True, exist_ok=True)
     content = get_file_content(fullpath)
-
-    print(fullpath)
 
     if source not in content:
         new_source = True

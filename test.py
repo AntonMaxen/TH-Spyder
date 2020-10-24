@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 from thspyder.page import Page
 from thspyder.helpers.listf import print_list
 from urllib.parse import urlparse
+import time
 import os.path
 
 
@@ -19,6 +20,7 @@ def main():
 
     pass
 
+
 def url_test():
     url = "https://www.m.example.com/home"
     parsed_url = urlparse(url)
@@ -26,11 +28,14 @@ def url_test():
         print("hello")
 
     print(__file__)
+    pass
 
 
-
+def time_test():
+    current_time = time.time()
+    print(round(current_time))
     pass
 
 
 if __name__ == '__main__':
-    url_test()
+    time_test()
