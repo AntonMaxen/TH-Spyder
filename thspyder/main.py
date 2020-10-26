@@ -8,6 +8,7 @@ import requests
 import json
 WHOOK = "https://discordapp.com/api/webhooks/769671953438343178/YFzZmckeAL1Lhw9YXJVlWuvMyhGOEWyQ-3CsofcRHNmWjmrwBSRKN4kxq3CfgWPfSp_L"
 
+
 def main():
     rs_spider = Spider(model_rs)
     name = model_rs['name']
@@ -25,7 +26,6 @@ def main():
                 result = requests.post(WHOOK, data=json.dumps(data), headers={"Content-Type": "application/json"})
                 print(filename)
                 print(changes)
-
 
 
 if __name__ == '__main__':
