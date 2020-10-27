@@ -23,8 +23,26 @@ modelpp = {
         "password": PASSWORD
     },
     "scrape_url": SCRAPE_URL,
-    "wanted_attributes": WANTED_ATTRIBUTES,
-    "wanted_text": WANTED_TEXT,
+    "wanted_attributes": [
+        {
+            "file_name": "youtube_links.txt",
+            "elements": "iframe",
+            "attributes": "src",
+            "replace": ("//www.youtube.com/embed", "https://youtu.be"),
+            "sub": ("(\\?ecver=\\d)", ""),
+            "root": None
+        }
+    ],
+    "wanted_text": [
+        {
+            "file_name": "all-text.txt",
+            "elements": "body",
+            "root": None,
+            "strip": True,
+            "separator": "\n"
+
+        }
+    ],
     "unwanted_elements": []
 }
 

@@ -86,7 +86,7 @@ def facebook_test():
 
 def test_bs4():
     session = Session()
-    page_path = session.request_page("https://en.wikipedia.org/wiki/Special:Random")
+    page_path = session.request_page("https://en.wikipedia.org/wiki/Python_(programming_language)")
     page = Page(file=page_path)
     stripped_string = page.text(["body"], sep="|", strip=True)
     attributes = page.attributes([[True]], "src")
@@ -95,7 +95,7 @@ def test_bs4():
 
 def main():
     pingpong_test()
-    wiki_test(5)
+    #wiki_test(20)
     #facebook_test()
     #test_bs4()
 

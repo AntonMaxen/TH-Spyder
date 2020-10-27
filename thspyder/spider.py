@@ -14,26 +14,28 @@ from thspyder.models.model_pp import modelpp
 from thspyder.models.model_wiki import model_wiki
 from thspyder.models.model_rs import model_rs
 from thspyder.models.default import default_model
+from thspyder.models.model_minimal import minimal_model
+# constants
 import thspyder.helpers.myconstants as constants
 
 
 class Spider:
     def __init__(self, model):
+        self.session = None
         self.spider_name = model['name']
         if 'login' in model:
             self.login_required = True
             self.form_url = model['login']['form_url']
-            self.auth_func = model['login']['auth_func']
+            self.auth_func = model['login'].get('auth_func', None)
             self.username = model['login']['username']
             self.password = model['login']['password']
         else:
             self.login_required = False
 
         self.scrape_url = model['scrape_url']
-        self.wanted_attributes = model['wanted_attributes']
-        self.wanted_text = model['wanted_text']
-        self.unwanted_elements = model['unwanted_elements']
-        self.session = None
+        self.wanted_attributes = model.get("wanted_attributes", [])
+        self.wanted_text = model.get("wanted_text", [])
+        self.unwanted_elements = model.get("unwanted_elements", [])
         self.file_processor = FileProcessor((constants.STORAGE_FOLDER, constants.DATA_FOLDER), self.spider_name)
 
     def scrape(self):
@@ -54,20 +56,29 @@ class Spider:
         content_page.trim(self.unwanted_elements)
 
         # extracts wanted attributes
-        for attribute in self.wanted_attributes:
-            attributes = content_page.attributes(attribute['elements'], attribute['attributes'], attribute['root'])
-            attributes = reformat_list_items(attribute, attributes)
-            self.save_result(timestamp, constants.ATTRIBUTE_FOLDER, attribute['file_name'], attributes)
+        for at in self.wanted_attributes:
+            file_name = at['file_name']
+            elements = at['elements']
+            attributes = at['attributes']
+            root = at.get("root", None)
+            found_attributes = content_page.attributes(elements, attributes, outer_element=root)
+            found_attributes = reformat_list_items(at, found_attributes)
+            self.save_result(timestamp, constants.ATTRIBUTE_FOLDER, file_name, found_attributes)
 
         # extracts wanted text
         for el in self.wanted_text:
-            found_text = content_page.text(el['elements'], el['root'], strip=el['strip'], sep=el['separator'])
+            file_name = el['file_name']
+            elements = el['elements']
+            root = el.get("root", None)
+            strip = el.get("strip", False)
+            sep = el.get("separator", "")
+            found_text = content_page.text(elements, outer_element=root, strip=strip, sep=sep)
             found_text = reformat_list_items(el, found_text)
-            self.save_result(timestamp, constants.TEXT_FOLDER, el['file_name'], found_text)
+            self.save_result(timestamp, constants.TEXT_FOLDER, file_name, found_text)
 
     def login(self):
         post_url, payload = create_payload(self.form_url, self.username, self.password)
-        self.session.login(post_url, payload, self.auth_func)
+        self.session.login(post_url, payload, auth_func=self.auth_func)
         if not self.session.isloggedin:
             raise Exception("login failed")
 
@@ -104,13 +115,19 @@ def main():
     rs_spider = Spider(model_rs)
     spyder = Spider(modelpp)
     wiki_spider = Spider(model_wiki)
+    minimal_spider = Spider(minimal_model)
     times = 1
 
+    print(minimal_spider.scrape_and_get_difference())
+
+    """
     for _ in range(times):
         print(default_spider.scrape_and_get_difference())
         print(spyder.scrape_and_get_difference())
         print(wiki_spider.scrape_and_get_difference())
         print(rs_spider.scrape_and_get_difference())
+        print(minimal_spider.scrape_and_get_difference())
+    """
 
 
 if __name__ == '__main__':

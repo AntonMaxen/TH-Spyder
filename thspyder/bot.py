@@ -32,7 +32,6 @@ class Jobs(BlockingScheduler):
 
 
 def main():
-
     pass
 
 

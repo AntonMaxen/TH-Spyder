@@ -103,10 +103,6 @@ class Page:
         identifier = str_to_list(identifier)
         return container.find_all(*identifier)
 
-    def text_elements(self, outer_element=None):
-        container = self.get_outer_element(outer_element)
-        return container.find_all(text=True)
-
     # simple functions
     def get_links(self, outer_element=None):
         return self.attributes("a", "href", outer_element)
@@ -124,9 +120,13 @@ class Page:
             attr_list = self.attributes([["input", {'type': 'text'}],
                                          ["input", {'type': 'email'}]], "name", "form")
 
-            input_names = self.attributes("input", "name", "form")
-            input_values = self.attributes("input", "value", "form")
-            input_dict = dict(zip(input_names, input_values))
+            input_elements = self.find_elements(["input", {"name": True}], "form")
+            input_dict = {}
+            for element in input_elements:
+                if element.has_attr('value'):
+                    input_dict[element['name']] = element['value']
+                else:
+                    input_dict[element['name']] = ""
 
             login_name = [attr for attr in attr_list if attr in login_variations]
             password_name = self.attributes([["input", {'type': 'password'}]], "name", "form")
