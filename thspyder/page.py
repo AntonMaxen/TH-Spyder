@@ -36,7 +36,7 @@ class Page:
         if identifier is None:
             return self.page
 
-        identifier = [identifier] if isinstance(identifier, str) else identifier
+        identifier = str_to_list(identifier)
         root = self.page.find(*identifier)
 
         return root if root is not None else self.page
@@ -45,7 +45,10 @@ class Page:
         if self.page is None:
             raise Exception("missing classmember Page.page")
 
+        identifiers = str_to_list(identifiers)
         for identifier in identifiers:
+            identifier = str_to_list(identifier)
+
             for element in self.page.find_all(*identifier):
                 element.decompose()
 
@@ -61,9 +64,10 @@ class Page:
         container = self.get_outer_element(outer_element)
 
         items = []
+
+        identifiers = str_to_list(identifiers)
         for identifier in identifiers:
-            if isinstance(identifier, str):
-                identifier = [identifier]
+            identifier = str_to_list(identifier)
 
             for element in container.find_all(*identifier):
                 item = func(element)
@@ -81,7 +85,8 @@ class Page:
 
     def attributes(self, identifiers, attrnames, outer_element=None):
         def extract(element):
-            for attrname in attrnames:
+            l_attrnames = str_to_list(attrnames)
+            for attrname in l_attrnames:
                 if element.has_attr(attrname):
                     return element[attrname]
 
@@ -90,10 +95,12 @@ class Page:
     # development methods
     def find_element(self, identifier, outer_element=None):
         container = self.get_outer_element(outer_element)
+        identifier = str_to_list(identifier)
         return container.find(*identifier)
 
     def find_elements(self, identifier, outer_element=None):
         container = self.get_outer_element(outer_element)
+        identifier = str_to_list(identifier)
         return container.find_all(*identifier)
 
     def text_elements(self, outer_element=None):
@@ -102,7 +109,7 @@ class Page:
 
     # simple functions
     def get_links(self, outer_element=None):
-        return self.attributes([["a"]], ["href"], outer_element)
+        return self.attributes("a", "href", outer_element)
 
     def get_text(self, outer_element=None):
         container = self.get_outer_element(outer_element)
@@ -112,17 +119,17 @@ class Page:
     def login_fields(self):
         login_variations = ['email', 'username', 'user', 'login']
 
-        form_element = self.find_element([["form"]])
+        form_element = self.find_element("form")
         if form_element:
             attr_list = self.attributes([["input", {'type': 'text'}],
-                                         ["input", {'type': 'email'}]], ["name"], "form")
+                                         ["input", {'type': 'email'}]], "name", "form")
 
-            input_names = self.attributes([["input"]], ["name"], "form")
-            input_values = self.attributes([["input"]], ["value"], "form")
+            input_names = self.attributes("input", "name", "form")
+            input_values = self.attributes("input", "value", "form")
             input_dict = dict(zip(input_names, input_values))
 
             login_name = [attr for attr in attr_list if attr in login_variations]
-            password_name = self.attributes([["input", {'type': 'password'}]], ["name"], "form")
+            password_name = self.attributes([["input", {'type': 'password'}]], "name", "form")
             login_name = login_name[0] if len(login_name) > 0 else None
             password_name = password_name[0] if len(password_name) > 0 else None
 
@@ -132,6 +139,10 @@ class Page:
                 'password_name': password_name,
                 'input_names': input_dict
             }
+
+
+def str_to_list(string):
+    return [string] if isinstance(string, str) else string
 
 
 def main():

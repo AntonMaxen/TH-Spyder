@@ -1,12 +1,14 @@
 import os
 import shutil
 import time
+import re
 
 # local imports
 from thspyder.session import Session
 from thspyder.page import Page
+from thspyder.fileprocessor import FileProcessor
 from thspyder.helpers.utils import create_payload
-from thspyder.helpers.writefile import update_file
+from thspyder.helpers.writefile import write_file
 from thspyder.helpers.listf import remove_junk, print_list, trim_list, strip_list, unidecode_list
 from thspyder.models import model_rs, model_wiki, default_model
 from thspyder.model_pp import modelpp
@@ -30,8 +32,9 @@ class Spider:
         self.wanted_text = model['wanted_text']
         self.unwanted_elements = model['unwanted_elements']
         self.session = None
+        self.file_processor = FileProcessor((constants.STORAGE_FOLDER, constants.DATA_FOLDER), self.spider_name)
 
-    def run(self):
+    def scrape(self):
         # does one iteration of scraping
 
         # one timestamp for whole run.
@@ -51,12 +54,13 @@ class Spider:
         # extracts wanted attributes
         for attribute in self.wanted_attributes:
             attributes = content_page.attributes(attribute['elements'], attribute['attributes'], attribute['root'])
+            attributes = reformat_list_items(attribute, attributes)
             self.save_result(timestamp, constants.ATTRIBUTE_FOLDER, attribute['file_name'], attributes)
 
         # extracts wanted text
         for el in self.wanted_text:
             found_text = content_page.text(el['elements'], el['root'], strip=el['strip'], sep=el['separator'])
-
+            found_text = reformat_list_items(el, found_text)
             self.save_result(timestamp, constants.TEXT_FOLDER, el['file_name'], found_text)
 
     def login(self):
@@ -67,14 +71,25 @@ class Spider:
 
     def save_result(self, timestamp, folder_name, file_name, result_list):
         path = (self.spider_name, timestamp, folder_name)
-        for result in result_list:
-            updated = update_file(result, path, file_name)
-            if updated:
-                #print(f"the page: {'/'.join(path)}/{file_name} is updated with: {str(len(result))} lines")
-                pass
-            else:
-                #print("|-|"*30)
-                pass
+        write_file(result_list, path, file_name)
+
+    def get_difference_recent(self):
+        return self.file_processor.file_diff_recent()
+
+    def scrape_and_get_difference(self):
+        self.scrape()
+        return self.get_difference_recent()
+
+
+def reformat_list_items(config, my_list):
+    reformatted_list = my_list.copy()
+    if "replace" in config:
+        reformatted_list = [item.replace(*config['replace']) for item in reformatted_list]
+
+    if "sub" in config:
+        reformatted_list = [re.sub(*config['sub'], item) for item in reformatted_list]
+
+    return reformatted_list
 
 
 def remove_data():
@@ -90,10 +105,10 @@ def main():
     times = 1
 
     for _ in range(times):
-        default_spider.run()
-        spyder.run()
-        wiki_spider.run()
-        rs_spider.run()
+        print(default_spider.scrape_and_process())
+        print(spyder.scrape_and_process())
+        print(wiki_spider.scrape_and_process())
+        print(rs_spider.scrape_and_process())
 
 
 if __name__ == '__main__':

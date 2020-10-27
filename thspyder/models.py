@@ -27,9 +27,12 @@ WANTED_ATTRIBUTES = [
         "file_name": "links.txt",
         "elements": [[True]],
         "attributes": ['src', 'href'],
+        "replace": ("https://www.youtube.com/embed", "https://youtu.be"),
+        "sub": ("(\\?ecver=\\d)", ""),
         "root": None
     }
 ]
+
 
 WANTED_TEXT = [
     {

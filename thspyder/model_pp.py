@@ -15,6 +15,8 @@ WANTED_ATTRIBUTES = [
         "file_name": "youtube_links.txt",
         "elements": [["iframe"]],
         "attributes": ['src'],
+        "replace": ("//www.youtube.com/embed", "https://youtu.be"),
+        "sub": ("(\\?ecver=\\d)", ""),
         "root": None
     },
     {
@@ -63,7 +65,6 @@ UNWANTED_ELEMENTS = [
 
 
 def auth_function(session):
-    print(f'inside auth function: {session}')
     return len([cookie for cookie in session.cookies if cookie.name == AUTH_COOKIE]) > 0
 
 

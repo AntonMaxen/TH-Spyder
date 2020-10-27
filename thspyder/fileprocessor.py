@@ -7,7 +7,7 @@ TIMESTAMP = "timestamp"
 FOLDERS = "folders"
 
 
-class DataProcessor:
+class FileProcessor:
     def __init__(self, data_path, spider_name):
         self.data_path = os.path.join(get_project_root(), *data_path)
         self.spider_name = spider_name
@@ -45,6 +45,11 @@ class DataProcessor:
             file_dicts.append(file_dict)
 
         return file_dicts
+
+    def file_diff_recent(self):
+        list_dicts = self.file_dicts()
+        diff_dict = difference(list_dicts)
+        return diff_dict
 
 
 def difference(list_dict):
@@ -101,10 +106,8 @@ def list_difference(new_list, old_list):
 
 
 def main():
-    processor = DataProcessor((constants.STORAGE_FOLDER, constants.DATA_FOLDER), "runescape")
-    list_dicts = processor.file_dicts()
-    print(list_dicts)
-    diff_dict = difference(list_dicts)
+    processor = FileProcessor((constants.STORAGE_FOLDER, constants.DATA_FOLDER), "runescape")
+    diff_dict = processor.file_diff_recent()
 
     for d, f in diff_dict.items():
         print(d)

@@ -31,7 +31,7 @@ class Session:
         if login_result.ok:
             # checking for cookie name if it exists the user is probably logged in
             if auth_func is not None:
-                print(f"Using auth function: {auth_func}")
+                # print(f"Using auth function: {auth_func}")
                 if auth_func(self.session):
                     self.isloggedin = True
                 else:
@@ -78,7 +78,6 @@ def build_paths(url, file_suffix):
 
     path = os.path.join(parent_dir, constants.STORAGE_FOLDER, constants.PAGE_FOLDER, uri.netloc, *clean_urlpath)
     fullpath = os.path.join(path, filename)
-    print(fullpath)
 
     return path, fullpath
 

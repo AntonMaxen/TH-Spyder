@@ -11,6 +11,7 @@ def create_payload(form_url, username, password):
     login_page_path = session.request_page(form_url)
     login_page = Page(login_page_path)
     fields = login_page.login_fields()
+    #print(fields)
 
     # edit data object with authentication
     payload = fields['input_names'].copy()
