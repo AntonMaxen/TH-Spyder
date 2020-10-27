@@ -1,8 +1,6 @@
 from thspyder.spider import Spider
 from thspyder.webhook import Webhook
-from thspyder.models import model_rs
-from thspyder.model_pp import modelpp
-import thspyder.helpers.myconstants as constants
+from thspyder.models.model_pp import modelpp
 
 import os
 import datetime
@@ -30,7 +28,6 @@ class HookedSpider(Spider):
 def main():
     spooder = HookedSpider(modelpp, WHOOK)
     spooder.run()
-    pass
 
 
 if __name__ == '__main__':

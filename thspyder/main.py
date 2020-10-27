@@ -2,7 +2,6 @@ import os
 from dotenv import load_dotenv
 
 from thspyder.bot import Bot
-from thspyder.models import model_rs as something_fun
 
 load_dotenv()
 WHOOK = os.getenv("WHOOK")
@@ -23,6 +22,7 @@ model_rs = {
     ],
     "unwanted_elements": [],
 }
+
 
 def main():
     bot = Bot()

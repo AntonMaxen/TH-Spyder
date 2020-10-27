@@ -86,6 +86,7 @@ def count_chars(my_list):
         total += len(string)
     return total
 
+
 def main():
     test_list = ['https://www.runescape.com/img/rsp777/hiscores/skill_icon_attack1.gif',
                  'https://www.runescape.com/img/rsp777/hiscores/skill_icon_defence1.gif',
@@ -119,7 +120,6 @@ def main():
 
     my_hook = Webhook(WHOOK)
     my_hook.send(test_list, "test", ignore_empty=True, formatting="*", items_per_request=3, delay=1)
-    pass
 
 
 if __name__ == '__main__':

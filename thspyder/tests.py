@@ -83,6 +83,7 @@ def facebook_test():
     front_page.trim([["script"]])
     visualize_page_text(front_page)
 
+
 def test_bs4():
     session = Session()
     page_path = session.request_page("https://en.wikipedia.org/wiki/Special:Random")
@@ -94,7 +95,7 @@ def test_bs4():
 
 def main():
     pingpong_test()
-    #wiki_test(5)
+    wiki_test(5)
     #facebook_test()
     #test_bs4()
 

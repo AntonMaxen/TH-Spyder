@@ -1,7 +1,6 @@
 from thspyder.helpers.helper import get_project_root
 import thspyder.helpers.myconstants as constants
 import os
-import time
 
 TIMESTAMP = "timestamp"
 FOLDERS = "folders"
@@ -112,9 +111,6 @@ def main():
     for d, f in diff_dict.items():
         print(d)
         print(f)
-
-
-    pass
 
 
 if __name__ == '__main__':

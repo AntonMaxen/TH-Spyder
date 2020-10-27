@@ -9,9 +9,11 @@ from thspyder.page import Page
 from thspyder.fileprocessor import FileProcessor
 from thspyder.helpers.utils import create_payload
 from thspyder.helpers.writefile import write_file
-from thspyder.helpers.listf import remove_junk, print_list, trim_list, strip_list, unidecode_list
-from thspyder.models import model_rs, model_wiki, default_model
-from thspyder.model_pp import modelpp
+# model imports for testing
+from thspyder.models.model_pp import modelpp
+from thspyder.models.model_wiki import model_wiki
+from thspyder.models.model_rs import model_rs
+from thspyder.models.default import default_model
 import thspyder.helpers.myconstants as constants
 
 

@@ -87,8 +87,6 @@ def main():
     page_path = session.request_page("https://www.youtube.com")
     print(page_path)
 
-    pass
-
 
 if __name__ == '__main__':
     main()
