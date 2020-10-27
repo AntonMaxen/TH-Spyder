@@ -12,14 +12,14 @@ AUTH_COOKIE = "PPLoggedIn"
 WANTED_ATTRIBUTES = [
     {
         "file_name": "youtube_links.txt",
-        "elements": [["iframe"]],
-        "attributes": ['src'],
+        "elements": "iframe",
+        "attributes": "src",
         "root": None
     },
     {
         "file_name": "cool_links.txt",
-        "elements": [["img"]],
-        "attributes": ['src'],
+        "elements": "img",
+        "attributes": "src",
         "root": None
 
     },
@@ -37,14 +37,14 @@ WANTED_ATTRIBUTES = [
 WANTED_TEXT = [
     {
         "file_name": "site_text.txt",
-        "elements": [["p"], ["h3"]],
+        "elements": ["p", "h3"],
         "root": None,
         "strip": False,
         "separator": ""
     },
     {
         "file_name": "all-text.txt",
-        "elements": [["body"]],
+        "elements": "body",
         "root": None,
         "strip": True,
         "separator": "\n"
@@ -52,17 +52,14 @@ WANTED_TEXT = [
     },
     {
         "file_name": "table_text.txt",
-        "elements": [['tr']],
+        "elements": "tr",
         "root": ["div", {"id": "contentHiscores"}],
         "strip": True,
         "separator": "|"
     }
 ]
 
-UNWANTED_ELEMENTS = [
-    ["script"],
-    ["head"]
-]
+UNWANTED_ELEMENTS = ["head", "script"]
 
 model_wiki = {
     "name": "wikipedia",
@@ -99,7 +96,7 @@ default_model = {
     "wanted_text": [
         {
             "file_name": "site_text.txt",
-            "elements": [["body"]],
+            "elements": "body",
             "root": None,
             "strip": False,
             "separator": ""

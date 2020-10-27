@@ -105,10 +105,10 @@ def main():
     times = 1
 
     for _ in range(times):
-        print(default_spider.scrape_and_process())
-        print(spyder.scrape_and_process())
-        print(wiki_spider.scrape_and_process())
-        print(rs_spider.scrape_and_process())
+        print(default_spider.scrape_and_get_difference())
+        print(spyder.scrape_and_get_difference())
+        print(wiki_spider.scrape_and_get_difference())
+        print(rs_spider.scrape_and_get_difference())
 
 
 if __name__ == '__main__':

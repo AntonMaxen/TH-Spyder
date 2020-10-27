@@ -13,22 +13,22 @@ AUTH_COOKIE = "PPLoggedIn"
 WANTED_ATTRIBUTES = [
     {
         "file_name": "youtube_links.txt",
-        "elements": [["iframe"]],
-        "attributes": ['src'],
+        "elements": "iframe",
+        "attributes": "src",
         "replace": ("//www.youtube.com/embed", "https://youtu.be"),
         "sub": ("(\\?ecver=\\d)", ""),
         "root": None
     },
     {
         "file_name": "image_links.txt",
-        "elements": [["img"]],
-        "attributes": ['src'],
+        "elements": "img",
+        "attributes": "src",
         "root": None
     },
     {
         "file_name": "links.txt",
         "elements": [[True]],
-        "attributes": ['src', 'href'],
+        "attributes": ["src", "href"],
         "root": None
     }
 ]
@@ -36,14 +36,14 @@ WANTED_ATTRIBUTES = [
 WANTED_TEXT = [
     {
         "file_name": "site_text.txt",
-        "elements": [["p"], ["h3"]],
+        "elements": ["p", "h3"],
         "root": None,
         "strip": False,
         "separator": ""
     },
     {
         "file_name": "all-text.txt",
-        "elements": [["body"]],
+        "elements": "body",
         "root": None,
         "strip": True,
         "separator": "\n"
@@ -51,7 +51,7 @@ WANTED_TEXT = [
     },
     {
         "file_name": "table_text.txt",
-        "elements": [['tr']],
+        "elements": "tr",
         "root": ["div", {"id": "contentHiscores"}],
         "strip": True,
         "separator": "|"
@@ -59,8 +59,8 @@ WANTED_TEXT = [
 ]
 
 UNWANTED_ELEMENTS = [
-    ["script"],
-    ["head"]
+    "script",
+    "head"
 ]
 
 
