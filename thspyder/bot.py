@@ -1,5 +1,6 @@
 from apscheduler.schedulers.blocking import BlockingScheduler
 from thspyder.hookedspider import HookedSpider
+import json
 
 
 class Bot:
@@ -14,6 +15,13 @@ class Bot:
             "spider": spider,
             "kwargs": kwargs
         })
+
+    def add_spiders_from_config(self, config_path):
+        with open(config_path) as json_file:
+            spider_configs = json.load(json_file)
+
+        for config in spider_configs:
+            self.add_spider(config['model'], config['webhook_url'], **config['cron_time'])
 
     def load_spiders(self):
         for spider in self.spiders:

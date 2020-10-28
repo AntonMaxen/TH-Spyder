@@ -1,0 +1,44 @@
+[
+  {
+    "model": {
+       "name": "name on your spider| required",
+      "login": {
+          "_comment": "login | optional",
+          "form_url": "url for login form | required",
+          "auth_func": "function that checks if login was successful | required",
+          "username": "your username for payload | required",
+          "password": "your password for payload | required"
+      },
+      "scrape_url": "url for page you want to scrape",
+      "wanted_attributes": [
+          {
+              "_comment": "wanted_attributes | optional",
+              "file_name": "name on file to store scraped attributes | required",
+              "elements": "element selectors for elements you want | required",
+              "attributes": "attribute name you want | required",
+              "replace": ["replace this", "with this | optional"],
+              "sub": ["regex", "replacement | optional"]
+          }
+      ],
+      "wanted_text": [
+          {
+              "_comment": "wanted_text | optional",
+              "file_name": "name on file to store scraped text | required",
+              "elements": "element selectors for elements you want | required",
+              "replace": ["replace this", "with this | optional"],
+              "sub": ["regex", "replacement | optional"],
+              "strip": "True/False | optional",
+              "separator": "separator with strip | optional"
+          }
+      ],
+      "unwanted_elements": ["elements you want to remove from page | optional"]
+    },
+    "cron_time": {
+      "_comment": "when to scrape | required",
+      "day_of_week": "*",
+      "hour": "0-23",
+      "minute": "0/1"
+    },
+    "webhook_url": "discord webhook url | required"
+  }
+]

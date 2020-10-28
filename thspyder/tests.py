@@ -23,7 +23,7 @@ def pingpong_test():
     session = Session(True)
     post_url, payload = create_payload(LOGIN_URL, USERNAME, PASSWORD)
     cookie_name = "PPLoggedIn"
-    session.login(post_url, payload, auth_func=lambda s: len([c for c in s.cookies if c.name == cookie_name]) > 0)
+    session.login(post_url, payload, auth_func="lambda s: len([c for c in s.cookies if c.name == 'PPLoggedin']) > 0")
     print(f'is logged in {session.isloggedin}')
 
     # parse the page to look for all course ids

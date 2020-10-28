@@ -30,6 +30,9 @@ class Session:
         # Some better error handling to check if user login is success or not TODO
         if login_result.ok:
             # checking for cookie name if it exists the user is probably logged in
+            if isinstance(auth_func, str):
+                auth_func = create_function_from_string(auth_func)
+
             if auth_func is not None:
                 # print(f"Using auth function: {auth_func}")
                 if auth_func(self.session):
@@ -80,6 +83,18 @@ def build_paths(url, file_suffix):
     fullpath = os.path.join(path, filename)
 
     return path, fullpath
+
+
+def create_function_from_string(string):
+    if string is None:
+        return None
+
+    if 'lambda' in string:
+        string = f'func = {string}'
+    loc = {}
+    exec(string, {}, loc)
+    funcs = [loc.get(func, None) for func in loc.keys()]
+    return funcs[0] if len(funcs) > 0 else None
 
 
 def main():

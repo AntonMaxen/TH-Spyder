@@ -2,6 +2,7 @@ import os
 import shutil
 import time
 import re
+import json
 
 # local imports
 from thspyder.session import Session
@@ -117,8 +118,13 @@ def main():
     wiki_spider = Spider(model_wiki)
     minimal_spider = Spider(minimal_model)
     times = 1
+    with open("models/models.json") as json_file:
+        spider_configs = json.load(json_file)
 
-    print(minimal_spider.scrape_and_get_difference())
+    spider_model = spider_configs[0]['model']
+    json_spider = Spider(spider_model)
+
+    print(json_spider.scrape_and_get_difference())
 
     """
     for _ in range(times):

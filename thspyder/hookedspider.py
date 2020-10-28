@@ -21,16 +21,17 @@ class HookedSpider(Spider):
         for folder_name in diff_list.keys():
             for filename, changes in diff_list[folder_name].items():
                 if len(changes) > 0:
-                    self.web_hook.send(changes, filename, ignore_empty=True, formatting="*", items_per_request=1)
+                    self.web_hook.send(changes, filename, ignore_empty=True, formatting="*",
+                                       items_per_request=1, delay=2)
 
         print(f'Spider: "{self.spider_name}" ended a round of scraping, time: {datetime.datetime.now()}')
 
 
 def main():
-    # spooder = HookedSpider(modelpp, WHOOK)
-    # spooder.run()
-    minimal_spider = HookedSpider(minimal_model, WHOOK)
-    minimal_spider.run()
+    spooder = HookedSpider(modelpp, WHOOK)
+    spooder.run()
+    # minimal_spider = HookedSpider(minimal_model, WHOOK)
+    # minimal_spider.run()
 
 
 
