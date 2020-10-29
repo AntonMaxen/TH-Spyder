@@ -13,11 +13,13 @@ class Webhook:
         self.formatting = webhook_config.get("formatting", "")
         self.items_per_request = webhook_config.get("items_per_request", 0)
         self.delay = webhook_config.get("delay", 2)
+        self.timestamp = webhook_config.get("timestamp", False)
 
     def send(self, content, name):
         if self.ignore_empty:
             content = [line for line in content if line]
 
+        username = f'{str(round(time.time()))}: {name}' if self.timestamp else name
         # add formatting
         content = [f'{self.formatting}{line}{self.formatting}' if line else line for line in content]
         # split lists for separate requests
@@ -28,7 +30,7 @@ class Webhook:
             for c in list_content:
                 data = {
                     "content": "\n".join(c),
-                    "username": name
+                    "username": username
                 }
 
                 result = requests.post(self.url, data=json.dumps(data), headers={"Content-Type": "application/json"})
