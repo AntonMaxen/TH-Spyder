@@ -1,5 +1,4 @@
 import re
-from unidecode import unidecode
 
 
 def print_list(my_list):
@@ -26,10 +25,6 @@ def strip_list(my_list):
     return [item.strip() for item in my_list]
 
 
-def unidecode_list(my_list):
-    return [unidecode(item) for item in my_list]
-
-
 def remove_duplicates(my_list):
     return list(set(my_list))
 
@@ -38,13 +33,5 @@ def remove_junk(my_list):
     return clean_list(trim_list(my_list, "\n|\\xa0"))
 
 
-def replace_grps_nl(my_list):
+def replace_newlines(my_list):
     return strip_list(trim_list(my_list, '(\\n)+', " "))
-
-
-def main():
-    pass
-
-
-if __name__ == '__main__':
-    main()

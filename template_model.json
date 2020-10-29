@@ -1,13 +1,13 @@
 [
   {
     "model": {
-       "name": "name on your spider| required",
+       "name": "name on your spider (string) | required",
       "login": {
           "_comment": "login | optional",
-          "form_url": "url for login form | required",
-          "auth_func": "function that checks if login was successful | required",
-          "username": "your username for payload | required",
-          "password": "your password for payload | required"
+          "form_url": "url for login form (string) | required",
+          "auth_func": "function that checks if login was successful (string) | required",
+          "username": "your username for payload (string) | required",
+          "password": "your password for payload (string) | required"
       },
       "scrape_url": "url for page you want to scrape",
       "wanted_attributes": [
@@ -27,18 +27,27 @@
               "elements": "element selectors for elements you want | required",
               "replace": ["replace this", "with this | optional"],
               "sub": ["regex", "replacement | optional"],
-              "strip": "True/False | optional",
-              "separator": "separator with strip | optional"
+              "strip": "True/False (bool) | optional",
+              "separator": "separator with strip (string)| optional"
           }
       ],
       "unwanted_elements": ["elements you want to remove from page | optional"]
     },
     "cron_time": {
       "_comment": "when to scrape | required",
-      "day_of_week": "*",
-      "hour": "0-23",
-      "minute": "0/1"
+      "day_of_week": "* (string/int) | optional",
+      "hour": "0-23 (string/int) | optional",
+      "minute": "0/1 (string/int) | optional"
     },
-    "webhook_url": "discord webhook url | required"
+    "webhook": {
+      "url": "discord webhook_url (string)",
+      "settings": {
+        "_comment": "settings | optional",
+        "ignore_empty": "true/false (bool)| optional",
+        "formatting": "enclose every line with given (string) | optional",
+        "items_per_request": "how many lines / whook post (int) | optional",
+        "delay": "delay in seconds (int) | optional"
+      }
+    }
   }
 ]

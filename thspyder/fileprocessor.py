@@ -7,6 +7,7 @@ FOLDERS = "folders"
 
 
 class FileProcessor:
+    """Class that manages filestructures ordered with unix timestamps"""
     def __init__(self, data_path, spider_name):
         self.data_path = os.path.join(get_project_root(), *data_path)
         self.spider_name = spider_name
@@ -16,18 +17,19 @@ class FileProcessor:
         return os.path.join(self.data_path, self.spider_name)
 
     def recent(self, amount=1):
+        """returns list with amount of unix timestamp gathered from
+        a file structure ordered highest to lowest"""
         dirs = os.listdir(self.full_path)
         if amount > len(dirs):
-            # raise Exception("Not enough folders to grab")
             amount = len(dirs)
-            pass
 
         sorted_dirs = sorted(dirs, reverse=True)
         # returns Newest -> Oldest
         return [sorted_dirs[i] for i in range(amount)]
 
     def file_dicts(self, amount=2):
-        last_two = self.recent(amount)
+        """returns list of dictionaries with information about a filestructure"""
+        last_two = self.recent(amount=amount)
         file_dicts = []
         for timestamp in last_two:
             file_dict = {TIMESTAMP: timestamp, FOLDERS: []}
@@ -46,12 +48,15 @@ class FileProcessor:
         return file_dicts
 
     def file_diff_recent(self):
-        list_dicts = self.file_dicts()
+        """returns dictionary with file differences in a filestructure"""
+        list_dicts = self.file_dicts(amount=2)
         diff_dict = difference(list_dicts)
         return diff_dict
 
 
 def difference(list_dict):
+    """goes through dictionary of file 2 filestructures and returns the difference in a dict"""
+    # This needs to be shorter in multiple functions TODO
     diff_dict = {}
     if len(list_dict) < 2:
         for folder in list_dict[0][FOLDERS]:
@@ -77,6 +82,7 @@ def difference(list_dict):
                             content_one = read_file(path_one)
                             content_two = read_file(path_two)
 
+                            # this is most of the time unessesary
                             if dict_one[TIMESTAMP] > dict_two[TIMESTAMP]:
                                 new_list = content_one
                                 old_list = content_two
@@ -102,16 +108,3 @@ def list_difference(new_list, old_list):
         if item not in old_list:
             diff.append(item)
     return diff
-
-
-def main():
-    processor = FileProcessor((constants.STORAGE_FOLDER, constants.DATA_FOLDER), "runescape")
-    diff_dict = processor.file_diff_recent()
-
-    for d, f in diff_dict.items():
-        print(d)
-        print(f)
-
-
-if __name__ == '__main__':
-    main()

@@ -9,6 +9,7 @@ def get_project_root():
 
 
 def random_ua():
+    # returns random u_a string
     ua_strings = [
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36",
         "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.157 Safari/537.36",
@@ -18,18 +19,12 @@ def random_ua():
 
 
 def add_prefix(str_list, prefix):
+    # adds prefix to every element in a list of string
     return [prefix + s for s in str_list]
 
 
 def reformat_youtube_embed(links):
+    # reformat list of youtube links
     new_links = [link.replace('https://www.youtube.com/embed', 'https://youtu.be') for link in links]
     reformatted_links = [re.sub('(\\?ecver=\\d)', '', link) for link in new_links]
     return reformatted_links
-
-
-def main():
-    pass
-
-
-if __name__ == '__main__':
-    main()

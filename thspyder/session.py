@@ -1,7 +1,7 @@
-import requests
 import os
 import re
 import pickle
+import requests
 from pathlib import Path
 from urllib.parse import urlparse
 
@@ -11,13 +11,15 @@ import thspyder.helpers.myconstants as constants
 
 
 class Session:
+    """Class Session is holding a session it makes requests with"""
     def __init__(self, require_login=False):
         self.session = requests.session()
         self.set_headers()
         self._requirelogin = require_login
         self.isloggedin = False
 
-    def set_headers(self, *args, **kwargs):
+    def set_headers(self, **kwargs):
+        """sets headers for main session"""
         if 'ua' in kwargs:
             ua = kwargs.get('ua')
         else:
@@ -25,6 +27,9 @@ class Session:
         self.session.headers.update({'user-agent': ua})
 
     def login(self, login_url, payload, auth_func=None):
+        """issues a post request with given payload and url,
+        if auth function is given it will evalute if login
+        is succesful or not"""
         login_result = self.session.post(login_url, data=payload, headers=dict(referer=login_url))
 
         # Some better error handling to check if user login is success or not TODO
@@ -34,7 +39,6 @@ class Session:
                 auth_func = create_function_from_string(auth_func)
 
             if auth_func is not None:
-                # print(f"Using auth function: {auth_func}")
                 if auth_func(self.session):
                     self.isloggedin = True
                 else:
@@ -49,6 +53,7 @@ class Session:
         return self.isloggedin
 
     def request_page(self, url):
+        """issues a get request with given url and pickles the result"""
         # checking if logged in if required.
         if self._requirelogin and not self.isloggedin:
             raise Exception(f'Login required for that request')
@@ -61,6 +66,7 @@ class Session:
 
 
 def pickle_result(result):
+    """building filestructure from url and saves file in that structure"""
     path, fullpath = build_paths(result.url, "pickle")
 
     Path(path).mkdir(parents=True, exist_ok=True)
@@ -71,6 +77,7 @@ def pickle_result(result):
 
 
 def build_paths(url, file_suffix):
+    """builds filestructure from url"""
     uri = urlparse(url)
     filename = f'{os.path.basename(uri.path)}.{file_suffix}'
     root = get_project_root()
@@ -86,6 +93,7 @@ def build_paths(url, file_suffix):
 
 
 def create_function_from_string(string):
+    """with a given string execute it as python function and return the function"""
     if string is None:
         return None
 
@@ -95,13 +103,3 @@ def create_function_from_string(string):
     exec(string, {}, loc)
     funcs = [loc.get(func, None) for func in loc.keys()]
     return funcs[0] if len(funcs) > 0 else None
-
-
-def main():
-    session = Session()
-    page_path = session.request_page("https://www.youtube.com")
-    print(page_path)
-
-
-if __name__ == '__main__':
-    main()

@@ -11,7 +11,6 @@ def create_payload(form_url, username, password):
     login_page_path = session.request_page(form_url)
     login_page = Page(login_page_path)
     fields = login_page.login_fields()
-    #print(fields)
 
     # edit data object with authentication
     payload = fields['input_names'].copy()
@@ -45,12 +44,4 @@ def visualize_page_text(page_obj):
 
 def vizualize_page_links(page_obj):
     # print all links in page obj
-    print_list(page_obj.attributes([["a"]], ["href"], outer_element="body"))
-
-
-def main():
-    pass
-
-
-if __name__ == '__main__':
-    main()
+    print_list(page_obj.attributes("a", "href", outer_element="body"))

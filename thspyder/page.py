@@ -19,17 +19,20 @@ from bs4 import Comment
 
 
 class Page:
+    """class Page is a Parser containing methods for easier data extraction from htmltrees"""
     def __init__(self, file=None, page=None):
         self.page = page
         if file is not None:
             self.load(file)
 
     def load(self, fullpath):
+        """loads a pickled htmltree from a pickle file using filepath"""
         with open(fullpath, "rb") as p_file:
             unpickled_page = pickle.load(p_file)
             self.page = BeautifulSoup(unpickled_page.text, 'html.parser')
 
     def get_outer_element(self, identifier=None):
+        """returns element matching given html identifier, if not found returns page"""
         if self.page is None:
             raise Exception("missing classmember Page.page")
 
@@ -42,6 +45,7 @@ class Page:
         return root if root is not None else self.page
 
     def trim(self, identifiers):
+        """removes matching elementes according to identifier from page attribute"""
         if self.page is None:
             raise Exception("missing classmember Page.page")
 
@@ -53,6 +57,7 @@ class Page:
                 element.decompose()
 
     def remove_comments(self):
+        """removes html comments from htmltree"""
         if self.page is None:
             raise Exception("missing classmember Page.page")
 
@@ -61,6 +66,8 @@ class Page:
             comment.extract()
 
     def elements(self, identifiers, func, outer_element=None):
+        """locates all elements matching identifier and return all items according to
+        a given function."""
         container = self.get_outer_element(outer_element)
 
         items = []
@@ -77,6 +84,8 @@ class Page:
         return items
 
     def text(self, identifiers, outer_element=None, sep="", strip=False):
+        """locates all elements matching identifier and returns all those elements
+        who have text"""
         def extract(element):
             if element.text:
                 return element.get_text(separator=sep, strip=strip)
@@ -84,6 +93,8 @@ class Page:
         return self.elements(identifiers, extract, outer_element)
 
     def attributes(self, identifiers, attrnames, outer_element=None):
+        """locates all elements matching identifier and returns attribute value of element
+        if element got that given attribute"""
         def extract(element):
             l_attrnames = str_to_list(attrnames)
             for attrname in l_attrnames:
@@ -94,25 +105,30 @@ class Page:
 
     # development methods
     def find_element(self, identifier, outer_element=None):
+        """returns bs4 element matching identifier"""
         container = self.get_outer_element(outer_element)
         identifier = str_to_list(identifier)
         return container.find(*identifier)
 
     def find_elements(self, identifier, outer_element=None):
+        """returns bs4 elements matching identifier"""
         container = self.get_outer_element(outer_element)
         identifier = str_to_list(identifier)
         return container.find_all(*identifier)
 
     # simple functions
     def get_links(self, outer_element=None):
+        """returns all links on page"""
         return self.attributes("a", "href", outer_element)
 
     def get_text(self, outer_element=None):
+        """return all text on page"""
         container = self.get_outer_element(outer_element)
         return container.stripped_strings
 
     # experimental functions
     def login_fields(self):
+        """returns structured dict of the form in page"""
         login_variations = ['email', 'username', 'user', 'login']
 
         form_element = self.find_element("form")
@@ -144,10 +160,3 @@ class Page:
 def str_to_list(string):
     return [string] if isinstance(string, str) else string
 
-
-def main():
-    pass
-
-
-if __name__ == '__main__':
-    main()

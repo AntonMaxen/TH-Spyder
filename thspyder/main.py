@@ -1,13 +1,4 @@
-import os
-import json
-from dotenv import load_dotenv
-
 from thspyder.bot import Bot
-
-load_dotenv()
-WHOOK = os.getenv("WHOOK")
-
-
 
 
 def main():

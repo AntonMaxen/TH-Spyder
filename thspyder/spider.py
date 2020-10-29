@@ -1,8 +1,5 @@
-import os
-import shutil
 import time
 import re
-import json
 
 # local imports
 from thspyder.session import Session
@@ -10,17 +7,12 @@ from thspyder.page import Page
 from thspyder.fileprocessor import FileProcessor
 from thspyder.helpers.utils import create_payload
 from thspyder.helpers.writefile import write_file
-# model imports for testing
-from thspyder.models.model_pp import modelpp
-from thspyder.models.model_wiki import model_wiki
-from thspyder.models.model_rs import model_rs
-from thspyder.models.default import default_model
-from thspyder.models.model_minimal import minimal_model
-# constants
 import thspyder.helpers.myconstants as constants
 
 
 class Spider:
+    """Class Spider is a scraping class that with a given model,
+    can make a round of scraping"""
     def __init__(self, model):
         self.session = None
         self.spider_name = model['name']
@@ -40,7 +32,7 @@ class Spider:
         self.file_processor = FileProcessor((constants.STORAGE_FOLDER, constants.DATA_FOLDER), self.spider_name)
 
     def scrape(self):
-        # does one iteration of scraping
+        """does one iteration of scraping"""
 
         # one timestamp for whole run.
         timestamp = str(round(time.time()))
@@ -78,24 +70,29 @@ class Spider:
             self.save_result(timestamp, constants.TEXT_FOLDER, file_name, found_text)
 
     def login(self):
+        """builds a payload from attributes and issues a login request with session"""
         post_url, payload = create_payload(self.form_url, self.username, self.password)
         self.session.login(post_url, payload, auth_func=self.auth_func)
         if not self.session.isloggedin:
             raise Exception("login failed")
 
     def save_result(self, timestamp, folder_name, file_name, result_list):
+        """writes a given list to a file with given path to that file"""
         path = (self.spider_name, timestamp, folder_name)
         write_file(result_list, path, file_name)
 
     def get_difference_recent(self):
+        """returns dict of difference between 2 recent scrapes"""
         return self.file_processor.file_diff_recent()
 
     def scrape_and_get_difference(self):
+        """scrapes and returns dict of difference between 2 recent scrapes"""
         self.scrape()
         return self.get_difference_recent()
 
 
 def reformat_list_items(config, my_list):
+    """reformats list according to a config"""
     reformatted_list = my_list.copy()
     if "replace" in config:
         reformatted_list = [item.replace(*config['replace']) for item in reformatted_list]
@@ -104,37 +101,3 @@ def reformat_list_items(config, my_list):
         reformatted_list = [re.sub(*config['sub'], item) for item in reformatted_list]
 
     return reformatted_list
-
-
-def remove_data():
-    if os.path.exists("data"):
-        shutil.rmtree("data")
-
-
-def main():
-    default_spider = Spider(default_model)
-    rs_spider = Spider(model_rs)
-    spyder = Spider(modelpp)
-    wiki_spider = Spider(model_wiki)
-    minimal_spider = Spider(minimal_model)
-    times = 1
-    with open("models/models.json") as json_file:
-        spider_configs = json.load(json_file)
-
-    spider_model = spider_configs[0]['model']
-    json_spider = Spider(spider_model)
-
-    print(json_spider.scrape_and_get_difference())
-
-    """
-    for _ in range(times):
-        print(default_spider.scrape_and_get_difference())
-        print(spyder.scrape_and_get_difference())
-        print(wiki_spider.scrape_and_get_difference())
-        print(rs_spider.scrape_and_get_difference())
-        print(minimal_spider.scrape_and_get_difference())
-    """
-
-
-if __name__ == '__main__':
-    main()

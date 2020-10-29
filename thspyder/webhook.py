@@ -1,26 +1,28 @@
 import requests
 import json
 import time
-import os
-from dotenv import load_dotenv
-load_dotenv()
-WHOOK = os.getenv("WHOOK")
 MAX_UNICODE_CHARS = 2000
 
 
 class Webhook:
-    def __init__(self, url):
+    """Class Webhook is a integration for discords webhook api,
+    it sends json data to discords api so it can be viewed in discord"""
+    def __init__(self, url, **webhook_config):
         self.url = url
+        self.ignore_empty = webhook_config.get("ignore_empty", False)
+        self.formatting = webhook_config.get("formatting", "")
+        self.items_per_request = webhook_config.get("items_per_request", 0)
+        self.delay = webhook_config.get("delay", 2)
 
-    def send(self, content, name, ignore_empty=False, formatting="", items_per_request=0, delay=2):
-        if ignore_empty:
+    def send(self, content, name):
+        if self.ignore_empty:
             content = [line for line in content if line]
 
         # add formatting
-        content = [f'{formatting}{line}{formatting}' if line else line for line in content]
+        content = [f'{self.formatting}{line}{self.formatting}' if line else line for line in content]
         # split lists for separate requests
-        list_of_lists = split_list_in_lists(content, items_per_request)
-        splitted_content = [split_list(content, MAX_UNICODE_CHARS) for content in list_of_lists]
+        list_of_requests = split_list_in_requests(content, self.items_per_request)
+        splitted_content = [split_list(content, MAX_UNICODE_CHARS) for content in list_of_requests]
 
         for list_content in splitted_content:
             for c in list_content:
@@ -39,10 +41,11 @@ class Webhook:
                     print("success")
 
                 if len(list_content) > 1 or len(splitted_content) > 1:
-                    time.sleep(delay)
+                    time.sleep(self.delay)
 
 
 def split_list(my_list, max_chars):
+    """splits a list in lists if num_characters in list is > max_chars"""
     total = -1
     splitted_lists = []
     temp_list = []
@@ -62,7 +65,8 @@ def split_list(my_list, max_chars):
     return splitted_lists
 
 
-def split_list_in_lists(my_list, items_per_request):
+def split_list_in_requests(my_list, items_per_request):
+    """divides list in groups of x: items_per_request"""
     if items_per_request <= 0:
         return [my_list]
 
@@ -85,42 +89,3 @@ def count_chars(my_list):
     for string in my_list:
         total += len(string)
     return total
-
-
-def main():
-    test_list = ['https://www.runescape.com/img/rsp777/hiscores/skill_icon_attack1.gif',
-                 'https://www.runescape.com/img/rsp777/hiscores/skill_icon_defence1.gif',
-                 'https://www.runescape.com/img/rsp777/hiscores/skill_icon_strength1.gif',
-                 'https://www.runescape.com/img/rsp777/hiscores/skill_icon_hitpoints1.gif',
-                 'https://www.runescape.com/img/rsp777/hiscores/skill_icon_ranged1.gif',
-                 'https://www.runescape.com/img/rsp777/hiscores/skill_icon_prayer1.gif',
-                 'https://www.runescape.com/img/rsp777/hiscores/skill_icon_magic1.gif',
-                 'https://www.runescape.com/img/rsp777/hiscores/skill_icon_cooking1.gif',
-                 'https://www.runescape.com/img/rsp777/hiscores/skill_icon_woodcutting1.gif',
-                 'https://www.runescape.com/img/rsp777/hiscores/skill_icon_fletching1.gif',
-                 'https://www.runescape.com/img/rsp777/hiscores/skill_icon_fishing1.gif',
-                 'https://www.runescape.com/img/rsp777/hiscores/skill_icon_firemaking1.gif',
-                 'https://www.runescape.com/img/rsp777/hiscores/skill_icon_crafting1.gif',
-                 'https://www.runescape.com/img/rsp777/hiscores/skill_icon_smithing1.gif',
-                 'https://www.runescape.com/img/rsp777/hiscores/skill_icon_mining1.gif',
-                 'https://www.runescape.com/img/rsp777/hiscores/skill_icon_herblore1.gif',
-                 'https://www.runescape.com/img/rsp777/hiscores/skill_icon_agility1.gif',
-                 'https://www.runescape.com/img/rsp777/hiscores/skill_icon_thieving1.gif',
-                 'https://www.runescape.com/img/rsp777/hiscores/skill_icon_slayer1.gif',
-                 'https://www.runescape.com/img/rsp777/hiscores/skill_icon_farming1.gif',
-                 'https://www.runescape.com/img/rsp777/hiscores/skill_icon_runecraft1.gif',
-                 'https://www.runescape.com/img/rsp777/hiscores/skill_icon_hunter1.gif',
-                 'https://www.runescape.com/img/rsp777/hiscores/skill_icon_construction1.gif',
-                 'https://www.runescape.com/img/rsp777/game_icon_cluescrollsall.png',
-                 'https://www.runescape.com/img/rsp777/game_icon_cluescrollsbeginner.png',
-                 'https://www.runescape.com/img/rsp777/game_icon_cluescrollseasy.png',
-                 'https://www.runescape.com/img/rsp777/game_icon_cluescrollsmedium.png',
-                 'https://www.runescape.com/img/rsp777/game_icon_cluescroll',
-                 'https://www.runescape.com/img/rsp777/rss.png']
-
-    my_hook = Webhook(WHOOK)
-    my_hook.send(test_list, "test", ignore_empty=True, formatting="*", items_per_request=3, delay=1)
-
-
-if __name__ == '__main__':
-    main()
