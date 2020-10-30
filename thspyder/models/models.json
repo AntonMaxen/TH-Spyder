@@ -1,0 +1,48 @@
+[
+  {
+    "model": {
+      "name": "",
+      "login": {
+        "form_url": "",
+        "auth_func": "",
+        "username": "",
+        "password": ""
+      },
+      "scrape_url": "",
+      "wanted_attributes": [
+        {
+          "file_name": "",
+          "elements": "",
+          "attributes": "",
+          "replace": ["", ""],
+          "sub": ["", ""]
+        }
+      ],
+      "wanted_text": [
+        {
+          "file_name": "",
+          "elements": "",
+          "replace": ["", ""],
+          "sub": ["", ""],
+          "strip": "",
+          "separator": ""
+        }
+      ],
+      "unwanted_elements": []
+    },
+    "cron_time": {
+      "day_of_week": "",
+      "hour": "",
+      "minute": ""
+    },
+    "webhook": {
+      "url": "",
+      "settings": {
+        "ignore_empty": "",
+        "formatting": "",
+        "items_per_request": "",
+        "delay": ""
+      }
+    }
+  }
+]
