@@ -18,7 +18,7 @@ It all started with a prototype i made to automate the task of checking if my cu
 the discord api wrapper discord.py. It was short and did what i wanted, but it ended at that. If i wanted to scrape another website i had to make another entire program almost, so out came the idea to make one program for all kind of scraping, quick, easy and accessible is what i had in mind. The name TH is coming for the fact that the idea of this project came from the fact that i scraped my schools webplatform where the TH is the name of the school.
 <!-- ABOUT THE PROJECT -->
 ## About The Project
-TH-spyder is a model based webscraper with github integration to discords web api. It scrapes a website according to a userdefined model and posts it using a discord webhook, to wanted discord-server. in the model the runtime schedule is also defined using a cron defined schedule. The user can add as many "spiders" as the user want.
+TH-spyder is a model based webscraper with github integration to discords web api. It scrapes a website according to a userdefined model and posts it to a discord channel using a discord webhook, to wanted discord-server. in the model the runtime schedule is also defined using a cron defined schedule. The user can add as many "spiders" as the user want.
 
 ### Built With
 This section should list any major frameworks that you built your project using. Leave any add-ons/plugins for the acknowledgements section. Here are a few examples.
