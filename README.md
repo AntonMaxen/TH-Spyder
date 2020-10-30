@@ -46,6 +46,10 @@ git clone https://github.com/AntonMaxen/TH-Spyder.git
 ```sh
 pip install requirements.txt 
 ```
+3. Generate Discord webhook
+```
+see https://discord.com/developers/docs/resources/webhook
+```
 4. Create your scraping model at `thspyder/models/models.json`
 ```
 See model_template.json
